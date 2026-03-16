@@ -13,17 +13,17 @@ const containerVariants: Variants = {
     visible: {
         opacity: 1,
         transition: {
-            staggerChildren: 0.1
+            staggerChildren: 0.08
         }
     }
 };
 
 const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 12 },
     visible: {
         opacity: 1,
         y: 0,
-        transition: { type: "spring", stiffness: 300, damping: 24 }
+        transition: { duration: 0.4, ease: [0.25, 1, 0.5, 1] }
     }
 };
 
@@ -39,7 +39,6 @@ export function SettingsPage() {
     const queryClient = useQueryClient();
     const [darkMode, setDarkMode] = useState(false);
 
-    // Fetch settings
     const { data: settings, isLoading } = useQuery<NotificationSettings>({
         queryKey: ['settings', 'notifications'],
         queryFn: async () => {
@@ -49,7 +48,6 @@ export function SettingsPage() {
         }
     });
 
-    // Update settings mutation
     const updateSettingsMutation = useMutation({
         mutationFn: async (newSettings: Partial<NotificationSettings>) => {
             const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/settings`, {
@@ -67,14 +65,8 @@ export function SettingsPage() {
 
     const handleToggle = (key: keyof NotificationSettings) => {
         if (!settings) return;
-
         const newValue = !settings[key];
-
-        // Optimistic update logic could go here if needed, 
-        // but for now we'll just fire the mutation
         updateSettingsMutation.mutate({ [key]: newValue });
-
-        // If enabling push, request permission
         if (key === 'push_enabled' && newValue) {
             requestNotificationPermission();
         }
@@ -82,12 +74,9 @@ export function SettingsPage() {
 
     const requestNotificationPermission = async () => {
         if (!('Notification' in window)) return;
-
         const permission = await Notification.requestPermission();
         if (permission === 'granted') {
             console.log('Notification permission granted.');
-            // Here we would normally get the FCM token and save it
-            // generateFCMToken(); 
         }
     };
 
@@ -98,7 +87,7 @@ export function SettingsPage() {
                 <div className="flex-1 flex items-center justify-center">
                     <div className="animate-pulse flex flex-col items-center gap-4">
                         <div className="size-12 bg-slate-200 rounded-full"></div>
-                        <div className="w-32 h-4 bg-slate-200 rounded-lg"></div>
+                        <div className="w-32 h-4 bg-slate-200" style={{ borderRadius: 'var(--radius-sm)' }}></div>
                     </div>
                 </div>
                 <BottomNav />
@@ -117,7 +106,7 @@ export function SettingsPage() {
                 className="flex-1 overflow-y-auto px-4 pt-6"
             >
                 <motion.div variants={itemVariants} className="px-2 mb-6">
-                    <h2 className="text-3xl font-black text-slate-900 tracking-tight">설정</h2>
+                    <h2 className="text-slate-900 tracking-tight">설정</h2>
                 </motion.div>
 
                 <motion.section variants={itemVariants} className="mb-8">
@@ -134,7 +123,7 @@ export function SettingsPage() {
                             onToggle={() => handleToggle('push_enabled')}
                         />
                         <SettingsItem
-                            icon={<div className="size-5 bg-[#FEE500] rounded-lg flex items-center justify-center text-[10px] font-bold text-[#3C1E1E]">K</div>}
+                            icon={<div className="size-5 bg-[#FEE500] flex items-center justify-center text-[10px] font-semibold text-[#3C1E1E]" style={{ borderRadius: '6px' }}>K</div>}
                             title="카카오톡 알림"
                             type="toggle"
                             isToggled={settings?.kakao_enabled}
@@ -205,14 +194,13 @@ export function SettingsPage() {
                 </motion.div>
 
                 <motion.div variants={itemVariants} className="mt-8 px-4">
-                    <motion.button
-                        whileHover={{ scale: 1.02, backgroundColor: '#f1f5f9' }}
-                        whileTap={{ scale: 0.98 }}
-                        className="w-full py-4 text-slate-400 font-bold text-sm bg-slate-100 rounded-2xl transition-colors flex items-center justify-center gap-2"
+                    <button
+                        className="w-full py-4 text-slate-400 font-medium text-sm bg-slate-100 transition-colors flex items-center justify-center gap-2 hover:bg-slate-200 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                        style={{ borderRadius: 'var(--radius-md)' }}
                     >
                         <LogOut size={16} />
                         로그아웃
-                    </motion.button>
+                    </button>
                     <p className="text-center text-slate-300 text-xs mt-4 font-medium">
                         SignalCraft Biz for Enterprise
                     </p>

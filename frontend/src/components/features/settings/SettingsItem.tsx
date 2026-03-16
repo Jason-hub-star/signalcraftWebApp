@@ -25,13 +25,21 @@ export function SettingsItem({
     className
 }: SettingsItemProps) {
     return (
-        <motion.div
+        <div
             onClick={type === 'toggle' ? onToggle : onClick}
-            whileHover={{ x: type === 'link' ? 4 : 0 }}
-            whileTap={{ scale: 0.99 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            role={type === 'toggle' ? 'switch' : type === 'link' ? 'button' : undefined}
+            aria-checked={type === 'toggle' ? isToggled : undefined}
+            tabIndex={type === 'info' ? undefined : 0}
+            onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    if (type === 'toggle') onToggle?.();
+                    else onClick?.();
+                }
+            }}
             className={cn(
-                "flex items-center justify-between p-4 bg-white active:bg-slate-50 transition-colors cursor-pointer first:rounded-t-[1.5rem] last:rounded-b-[1.5rem] border-b border-slate-50 last:border-b-0",
+                "flex items-center justify-between p-4 bg-white active:bg-slate-50 transition-colors cursor-pointer border-b border-slate-50 last:border-b-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-signal-blue",
+                type === 'info' && "cursor-default",
                 className
             )}
         >
@@ -44,41 +52,32 @@ export function SettingsItem({
                 {value && <span className="text-sm font-medium text-signal-blue">{value}</span>}
 
                 {type === 'link' && (
-                    <motion.div
-                        animate={{ x: [0, 2, 0] }}
-                        transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-                    >
-                        <ChevronRight className="size-5 text-slate-300" />
-                    </motion.div>
+                    <ChevronRight className="size-5 text-slate-300" />
                 )}
 
                 {type === 'toggle' && (
                     <div className={cn(
-                        "w-12 h-7 rounded-full px-0.5 flex items-center transition-colors duration-300",
+                        "w-12 h-7 rounded-full px-0.5 flex items-center transition-colors",
                         isToggled ? "bg-signal-blue" : "bg-slate-200"
-                    )}>
+                    )}
+                        style={{ transitionDuration: 'var(--duration-normal)' }}
+                    >
                         <motion.div
                             layout
                             className="size-6 bg-white rounded-full shadow-sm"
                             transition={{
                                 type: "spring",
-                                stiffness: 600,
+                                stiffness: 500,
                                 damping: 30,
-                                scale: {
-                                    type: "spring",
-                                    stiffness: 700,
-                                    damping: 20
-                                }
                             }}
                             initial={false}
                             animate={{
                                 x: isToggled ? 20 : 0,
-                                scale: isToggled ? [1, 1.1, 1] : [1, 0.9, 1]
                             }}
                         />
                     </div>
                 )}
             </div>
-        </motion.div>
+        </div>
     );
 }

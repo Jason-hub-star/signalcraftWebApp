@@ -9,34 +9,33 @@ export function AIInsightCard() {
     return (
         <>
             <motion.div
-                initial={{ opacity: 0, y: 10 }}
+                initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
                 onClick={() => setIsModalOpen(true)}
-                className="relative overflow-hidden rounded-[2rem] bg-slate-900 cursor-pointer group shadow-xl shadow-slate-200"
+                className="relative overflow-hidden bg-slate-900 cursor-pointer group shadow-lg"
+                style={{ borderRadius: 'var(--radius-lg)' }}
             >
-                {/* Background Glow */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-signal-blue/20 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:bg-signal-blue/30 transition-colors duration-500" />
-
                 <div className="relative p-6 flex flex-col gap-4">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="size-8 rounded-xl bg-white/10 flex items-center justify-center backdrop-blur-md">
-                                <Sparkles size={16} className="text-signal-blue animate-pulse" />
+                            <div className="size-8 bg-white/10 flex items-center justify-center" style={{ borderRadius: 'var(--radius-sm)' }}>
+                                <Sparkles size={16} className="text-signal-blue" />
                             </div>
-                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">AI Insight</span>
+                            <span className="section-label text-slate-400 mb-0">AI Insight</span>
                         </div>
-                        <div className="size-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/20 transition-colors">
+                        <div className="size-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-white/15 transition-colors"
+                            style={{ transitionDuration: 'var(--duration-normal)' }}
+                        >
                             <ChevronRight size={18} className="text-white" />
                         </div>
                     </div>
 
                     <div className="space-y-1">
-                        <h3 className="text-xl font-black text-white leading-tight">
+                        <h3 className="text-xl font-bold text-white leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                             오늘의 설비는 <span className="text-signal-blue">안정적</span>입니다.
                         </h3>
-                        <p className="text-sm font-bold text-slate-400">
+                        <p className="text-sm font-medium text-slate-400">
                             특이사항 없음 • 효율 94% 달성
                         </p>
                     </div>

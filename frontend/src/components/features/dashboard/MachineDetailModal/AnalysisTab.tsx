@@ -24,15 +24,15 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
         return (
             <div className="flex flex-col items-center justify-center py-24 gap-4">
                 <Loader2 className="size-8 text-signal-blue animate-spin" />
-                <p className="text-slate-400 font-bold text-sm">기계 상태를 분석하고 있습니다...</p>
+                <p className="text-slate-400 font-medium text-sm">기계 상태를 분석하고 있습니다...</p>
             </div>
         );
     }
 
     if (error) {
         return (
-            <div className="p-8 bg-rose-50 rounded-[2rem] border border-rose-100 text-center">
-                <p className="text-rose-600 font-bold text-sm">분석 데이터를 불러오지 못했습니다.</p>
+            <div className="p-8 bg-rose-50 border border-rose-100 text-center" style={{ borderRadius: 'var(--radius-lg)' }}>
+                <p className="text-rose-600 font-medium text-sm">분석 데이터를 불러오지 못했습니다.</p>
             </div>
         );
     }
@@ -40,9 +40,8 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
     const report = analysis?.report;
     const forecast = analysis?.forecast;
 
-    // Map health and status from report if available, else use machine props
     const health = report?.health_score ?? machine.health;
-    const diagnostics = report?.diagnostics || { comp: 98, fan: 85, valve: 92 }; // fallback if no report
+    const diagnostics = report?.diagnostics || { comp: 98, fan: 85, valve: 92 };
     const roi = report?.roi_data || { watt: 42.5, door_opens: 12 };
 
     const forecastData = forecast?.prediction_data ?
@@ -57,15 +56,17 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
     return (
         <motion.div
             key="analysis"
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -16 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
+            exit={{ opacity: 0, x: 16 }}
+            transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
             className="space-y-8 pb-10"
         >
             {/* Health Score Hero */}
             <section className="relative">
-                <div className="flex flex-col items-center justify-center py-6 px-4 rounded-[2.5rem] bg-white border border-slate-100 shadow-sm overflow-hidden relative">
-                    {/* EHI Gauge */}
+                <div className="flex flex-col items-center justify-center py-6 px-4 bg-white border border-slate-100 shadow-card overflow-hidden relative"
+                    style={{ borderRadius: 'var(--radius-lg)' }}
+                >
                     <div className="relative size-64 flex items-center justify-center mb-6">
                         <svg className="size-full" viewBox="0 0 240 240">
                             <defs>
@@ -75,17 +76,13 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                 </linearGradient>
                             </defs>
 
-                            {/* Ticks Ring */}
                             {Array.from({ length: 40 }).map((_, i) => {
                                 const angle = (i / 40) * 360;
                                 const isMajor = i % 5 === 0;
                                 return (
                                     <line
                                         key={i}
-                                        x1="120"
-                                        y1="20"
-                                        x2="120"
-                                        y2={isMajor ? "35" : "28"}
+                                        x1="120" y1="20" x2="120" y2={isMajor ? "35" : "28"}
                                         stroke={isMajor ? "#E2E8F0" : "#F1F5F9"}
                                         strokeWidth={isMajor ? "2" : "1"}
                                         transform={`rotate(${angle} 120 120)`}
@@ -93,78 +90,43 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                 );
                             })}
 
-                            {/* Background Arc */}
-                            <circle
-                                cx="120"
-                                cy="120"
-                                r="88"
-                                fill="none"
-                                stroke="#F8FAFC"
-                                strokeWidth="16"
-                                strokeLinecap="round"
-                            />
+                            <circle cx="120" cy="120" r="88" fill="none" stroke="#F8FAFC" strokeWidth="16" strokeLinecap="round" />
 
-                            {/* Active Arc */}
                             <motion.circle
-                                cx="120"
-                                cy="120"
-                                r="88"
-                                fill="none"
-                                stroke="url(#gaugeGradient)"
-                                strokeWidth="16"
-                                strokeLinecap="round"
+                                cx="120" cy="120" r="88" fill="none" stroke="url(#gaugeGradient)"
+                                strokeWidth="16" strokeLinecap="round"
                                 strokeDasharray={2 * Math.PI * 88}
                                 initial={{ strokeDashoffset: 2 * Math.PI * 88 }}
-                                animate={{
-                                    strokeDashoffset: (2 * Math.PI * 88) * (1 - health / 100)
-                                }}
-                                transition={{
-                                    type: "spring",
-                                    stiffness: 60,
-                                    damping: 15,
-                                    mass: 1
-                                }}
+                                animate={{ strokeDashoffset: (2 * Math.PI * 88) * (1 - health / 100) }}
+                                transition={{ type: "spring", stiffness: 60, damping: 15, mass: 1 }}
                                 transform="rotate(-90 120 120)"
                             />
 
-                            {/* Inner Decorative Ring */}
-                            <circle
-                                cx="120"
-                                cy="120"
-                                r="70"
-                                fill="none"
-                                stroke="#F1F5F9"
-                                strokeWidth="1"
-                                strokeDasharray="4 4"
-                            />
+                            <circle cx="120" cy="120" r="70" fill="none" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4 4" />
                         </svg>
 
-                        {/* Center Text */}
                         <div className="absolute flex flex-col items-center">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1">Health</span>
+                            <span className="section-label mb-1">Health</span>
                             <div className="flex items-baseline">
                                 <motion.span
                                     initial={{ opacity: 0, scale: 0.5, y: 10 }}
                                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                                    transition={{
-                                        type: "spring",
-                                        stiffness: 100,
-                                        damping: 15
-                                    }}
-                                    className="text-6xl font-black text-slate-900 tracking-tighter"
+                                    transition={{ type: "spring", stiffness: 100, damping: 15 }}
+                                    className="text-6xl font-bold text-slate-900 tracking-tighter"
+                                    style={{ fontFamily: 'var(--font-heading)' }}
                                 >
                                     {health}
                                 </motion.span>
-                                <span className="text-xl font-bold text-slate-300 ml-1">%</span>
+                                <span className="text-xl font-medium text-slate-300 ml-1">%</span>
                             </div>
                             <div className={cn(
-                                "flex items-center gap-1.5 px-3 py-1 mt-2 rounded-full text-[11px] font-bold",
+                                "flex items-center gap-1.5 px-3 py-1 mt-2 rounded-full text-[11px] font-medium",
                                 machine.status === 'running' ? "bg-blue-50 text-blue-600" :
                                     machine.status === 'warning' ? "bg-amber-50 text-amber-600" :
                                         "bg-rose-50 text-rose-600"
                             )}>
                                 <div className={cn(
-                                    "size-1.5 rounded-full animate-pulse",
+                                    "size-1.5 rounded-full",
                                     machine.status === 'running' ? "bg-blue-500" :
                                         machine.status === 'warning' ? "bg-amber-500" :
                                             "bg-rose-500"
@@ -176,16 +138,16 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                 </div>
             </section>
 
-            {/* Semantic Diagnostics (Part Status Bars) */}
+            {/* Semantic Diagnostics */}
             <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                         <Settings2 size={20} className="text-slate-400" />
                         부품 건강 상태
                     </h3>
-                    <span className="text-[10px] font-black text-slate-400 bg-slate-100 px-2 py-1 rounded-md uppercase">AI 분석</span>
+                    <span className="section-label mb-0 bg-slate-100 px-2 py-1" style={{ borderRadius: '6px' }}>AI 분석</span>
                 </div>
-                <div className="p-6 rounded-[2rem] bg-white border border-slate-100 grid gap-6">
+                <div className="p-6 bg-white border border-slate-100 grid gap-6" style={{ borderRadius: 'var(--radius-lg)' }}>
                     {[
                         { label: '엔진 (Compressor)', score: diagnostics.comp || 90, detail: (diagnostics.comp || 90) > 90 ? '진동 및 상태 아주 좋음' : '주의 깊은 관찰 필요' },
                         { label: '냉각 팬 (Condenser Fan)', score: diagnostics.fan || 85, detail: (diagnostics.fan || 85) > 80 ? '냉각 효율 정상 범위' : '미세 진동 감지 (주의)' },
@@ -194,16 +156,16 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                         <div key={i} className="space-y-2">
                             <div className="flex justify-between items-end">
                                 <div>
-                                    <div className="text-sm font-black text-slate-700">{part.label}</div>
-                                    <div className="text-[11px] font-bold text-slate-400">{part.detail}</div>
+                                    <div className="text-sm font-semibold text-slate-700">{part.label}</div>
+                                    <div className="text-[11px] font-medium text-slate-400">{part.detail}</div>
                                 </div>
-                                <div className="text-sm font-black text-slate-900">{part.score}%</div>
+                                <div className="text-sm font-bold text-slate-900">{part.score}%</div>
                             </div>
                             <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: `${part.score}%` }}
-                                    transition={{ duration: 1, delay: i * 0.1 }}
+                                    transition={{ duration: 0.8, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
                                     className={cn(
                                         "h-full rounded-full",
                                         part.score > 90 ? "bg-signal-blue" : part.score > 80 ? "bg-signal-orange" : "bg-signal-red"
@@ -215,16 +177,16 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                 </div>
             </section>
 
-            {/* Sound Spectrum Visualizer (Maintain mock for visual effect, but base colors on health) */}
+            {/* Sound Spectrum Visualizer */}
             <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                         <Volume2 size={20} className="text-signal-blue" />
                         실시간 기계 소음
                     </h3>
-                    <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Active Listening</span>
+                    <span className="section-label mb-0">Active Listening</span>
                 </div>
-                <div className="h-40 flex items-end gap-1.5 px-4 py-8 bg-slate-900 rounded-[2rem] overflow-hidden">
+                <div className="h-40 flex items-end gap-1.5 px-4 py-8 bg-slate-900 overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
                     {[...Array(32)].map((_, i) => {
                         const healthThreshold = (health / 100) * 32;
                         const isHealthy = i < healthThreshold;
@@ -259,22 +221,19 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
             {/* Predictive Engine (72H Forecast) */}
             <section className="space-y-4">
                 <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                    <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                         <TrendingDown size={20} className="text-signal-red" />
                         72시간 고장 예보
                     </h3>
                     {health < 80 && (
                         <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-50 rounded-full">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-500"></span>
-                            </span>
-                            <span className="text-[10px] font-black text-rose-600 uppercase">점검 권장</span>
+                            <span className="size-2 rounded-full bg-rose-500" />
+                            <span className="section-label text-rose-600 mb-0">점검 권장</span>
                         </div>
                     )}
                 </div>
 
-                <div className="p-6 rounded-[2rem] bg-white border border-slate-100 shadow-sm space-y-6">
+                <div className="p-6 bg-white border border-slate-100 shadow-card space-y-6" style={{ borderRadius: 'var(--radius-lg)' }}>
                     <div className="h-[200px] w-full">
                         <ResponsiveContainer width="100%" height="100%">
                             <AreaChart data={forecastData}>
@@ -285,18 +244,15 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                     </linearGradient>
                                 </defs>
                                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                                <XAxis
-                                    dataKey="time"
-                                    axisLine={false}
-                                    tickLine={false}
-                                    tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 700 }}
-                                />
+                                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 500 }} />
                                 <Tooltip
                                     content={({ active, payload }) => {
                                         if (active && payload && payload.length) {
                                             const data = payload[0].payload;
                                             return (
-                                                <div className="bg-slate-900 text-white px-3 py-2 rounded-xl text-xs font-bold border border-slate-800 shadow-xl">
+                                                <div className="bg-slate-900 text-white px-3 py-2 text-xs font-medium border border-slate-800 shadow-xl"
+                                                    style={{ borderRadius: 'var(--radius-sm)' }}
+                                                >
                                                     <p className="opacity-60 mb-1">{data.time}</p>
                                                     <p className="text-sm">예상 건강: {data.value}%</p>
                                                 </div>
@@ -305,38 +261,33 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                         return null;
                                     }}
                                 />
-                                <Area
-                                    type="monotone"
-                                    dataKey="value"
-                                    stroke="#3B82F6"
-                                    strokeWidth={3}
-                                    fillOpacity={1}
-                                    fill="url(#colorValue)"
-                                />
+                                <Area type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
 
                     <div className={cn(
-                        "flex items-center justify-between p-5 rounded-[1.5rem] border",
+                        "flex items-center justify-between p-5 border",
                         health < 80 ? "bg-rose-50 border-rose-100" : "bg-emerald-50 border-emerald-100"
-                    )}>
+                    )} style={{ borderRadius: 'var(--radius-md)' }}>
                         {forecast?.golden_time ? (
                             <div>
-                                <div className={cn("text-[11px] font-black uppercase tracking-widest mb-0.5", health < 80 ? "text-rose-400" : "text-emerald-400")}>고장 예상 시점</div>
-                                <div className={cn("text-2xl font-black tracking-tighter", health < 80 ? "text-rose-600" : "text-emerald-600")}>
+                                <div className={cn("section-label mb-0.5", health < 80 ? "text-rose-400" : "text-emerald-400")}>고장 예상 시점</div>
+                                <div className={cn("text-2xl font-bold tracking-tighter", health < 80 ? "text-rose-600" : "text-emerald-600")}
+                                    style={{ fontFamily: 'var(--font-heading)' }}
+                                >
                                     {new Date(forecast.golden_time).toLocaleDateString()}
                                 </div>
                             </div>
                         ) : (
                             <div>
-                                <div className="text-[11px] font-black text-emerald-400 uppercase tracking-widest mb-0.5">이상 징후 없음</div>
-                                <div className="text-2xl font-black text-emerald-600 tracking-tighter">Golden Time 확보</div>
+                                <div className="section-label text-emerald-400 mb-0.5">이상 징후 없음</div>
+                                <div className="text-2xl font-bold text-emerald-600 tracking-tighter" style={{ fontFamily: 'var(--font-heading)' }}>Golden Time 확보</div>
                             </div>
                         )}
                         <div className="text-right">
-                            <div className={cn("text-[11px] font-black uppercase tracking-widest mb-0.5", health < 80 ? "text-rose-400" : "text-emerald-400")}>예측 정확도</div>
-                            <div className={cn("text-sm font-black", health < 80 ? "text-rose-500" : "text-emerald-500")}>85% (매우 높음)</div>
+                            <div className={cn("section-label mb-0.5", health < 80 ? "text-rose-400" : "text-emerald-400")}>예측 정확도</div>
+                            <div className={cn("text-sm font-semibold", health < 80 ? "text-rose-500" : "text-emerald-500")}>85% (매우 높음)</div>
                         </div>
                     </div>
                 </div>
@@ -344,59 +295,52 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
 
             {/* Virtual ROI & Smart Sensors */}
             <section className="space-y-4">
-                <h3 className="text-lg font-black text-slate-900 flex items-center gap-2">
+                <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                     <Zap size={20} className="text-amber-500" />
                     절약 도움 리포트
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Virtual Watt-meter */}
-                    <div className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100 relative overflow-hidden">
+                    <div className="p-6 bg-slate-50 border border-slate-100 relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-amber-100 text-amber-600 rounded-xl">
+                            <div className="p-2 bg-amber-100 text-amber-600" style={{ borderRadius: 'var(--radius-sm)' }}>
                                 <Activity size={18} />
                             </div>
-                            <span className="text-sm font-black text-slate-700">전력 사용량</span>
+                            <span className="text-sm font-semibold text-slate-700">전력 사용량</span>
                         </div>
                         <div className="flex items-baseline gap-1 mb-1">
-                            <span className="text-2xl font-black text-slate-900">{roi.watt || 0}</span>
-                            <span className="text-sm font-bold text-slate-400">kWh</span>
+                            <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>{roi.watt || 0}</span>
+                            <span className="text-sm font-medium text-slate-400">kWh</span>
                         </div>
-                        <p className="text-xs font-bold text-emerald-500">전주 대비 {Math.round((roi.saved || 8000) / 1200)}% 절감 중</p>
+                        <p className="text-xs font-medium text-emerald-500">전주 대비 {Math.round((roi.saved || 8000) / 1200)}% 절감 중</p>
                     </div>
 
-                    {/* Acoustic Door Guard */}
-                    <div className="p-6 rounded-[2rem] bg-slate-50 border border-slate-100 relative overflow-hidden">
+                    <div className="p-6 bg-slate-50 border border-slate-100 relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
                         <div className="flex items-center gap-3 mb-4">
-                            <div className="p-2 bg-blue-100 text-blue-600 rounded-xl">
+                            <div className="p-2 bg-blue-100 text-blue-600" style={{ borderRadius: 'var(--radius-sm)' }}>
                                 <ShieldCheck size={18} />
                             </div>
-                            <span className="text-sm font-black text-slate-700">문 열림 분석</span>
+                            <span className="text-sm font-semibold text-slate-700">문 열림 분석</span>
                         </div>
                         <div className="flex items-baseline gap-1 mb-1">
-                            <span className="text-2xl font-black text-slate-900">{roi.door_opens || 0}</span>
-                            <span className="text-sm font-bold text-slate-400">회 오픈</span>
+                            <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>{roi.door_opens || 0}</span>
+                            <span className="text-sm font-medium text-slate-400">회 오픈</span>
                         </div>
-                        <p className="text-xs font-bold text-amber-500">02:14 미세 누기 주의</p>
+                        <p className="text-xs font-medium text-amber-500">02:14 미세 누기 주의</p>
                     </div>
                 </div>
             </section>
 
             {/* AI Insights Card */}
             <section>
-                <div className="p-6 rounded-[2rem] bg-signal-blue text-white shadow-xl shadow-blue-500/20 relative overflow-hidden">
-                    <motion.div
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                        className="absolute -top-20 -right-20 size-60 bg-white/10 rounded-full blur-3xl"
-                    />
+                <div className="p-6 bg-signal-blue text-white shadow-lg relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
                     <div className="relative z-10">
                         <div className="flex items-center gap-3 mb-3">
-                            <div className="p-2 bg-white/20 rounded-xl backdrop-blur-md">
+                            <div className="p-2 bg-white/20" style={{ borderRadius: 'var(--radius-sm)' }}>
                                 <ShieldCheck size={20} />
                             </div>
-                            <span className="text-sm font-black tracking-wide">AI 인사이트</span>
+                            <span className="text-sm font-semibold tracking-wide">AI 인사이트</span>
                         </div>
-                        <p className="text-lg font-bold leading-snug tracking-tight break-keep">
+                        <p className="text-lg font-medium leading-snug tracking-tight break-keep">
                             {report?.ai_summary || machine.prediction}
                         </p>
                         <div className="mt-4 pt-4 border-t border-white/10 flex items-center justify-between">
@@ -406,7 +350,8 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                             </div>
                             <button
                                 onClick={onViewMaintenance}
-                                className="text-xs font-black px-4 py-2 bg-white text-signal-blue rounded-xl"
+                                className="text-xs font-semibold px-4 py-2 bg-white text-signal-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
+                                style={{ borderRadius: 'var(--radius-sm)' }}
                             >
                                 유지보수 기록
                             </button>
@@ -417,4 +362,3 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
         </motion.div>
     );
 }
-

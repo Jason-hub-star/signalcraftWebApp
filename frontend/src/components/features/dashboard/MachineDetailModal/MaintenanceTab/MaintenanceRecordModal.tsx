@@ -68,29 +68,33 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[110]"
+                        className="fixed inset-0 bg-slate-900/60 z-[110]"
+                        style={{ backdropFilter: 'blur(4px)' }}
                     />
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                        initial={{ opacity: 0, scale: 0.97, y: 16 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95, y: 20 }}
-                        className="fixed inset-x-4 top-[15%] max-w-lg mx-auto bg-white rounded-[2.5rem] shadow-2xl z-[111] overflow-hidden flex flex-col"
+                        exit={{ opacity: 0, scale: 0.97, y: 16 }}
+                        transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
+                        className="fixed inset-x-4 top-[15%] max-w-lg mx-auto bg-white shadow-2xl z-[111] overflow-hidden flex flex-col"
+                        style={{ borderRadius: 'var(--radius-lg)' }}
                     >
                         {/* Header */}
                         <div className="bg-slate-50 border-b border-slate-100 p-6">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                    <div className="size-10 rounded-2xl bg-signal-blue/10 flex items-center justify-center">
+                                    <div className="size-10 bg-signal-blue/10 flex items-center justify-center" style={{ borderRadius: 'var(--radius-md)' }}>
                                         <Wrench size={20} className="text-signal-blue" />
                                     </div>
                                     <div>
-                                        <h2 className="text-lg font-black tracking-tight text-slate-900">유지보수 기록 추가</h2>
-                                        <p className="text-xs font-bold text-slate-400">{machineName}</p>
+                                        <h2 className="text-lg font-bold tracking-tight text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>유지보수 기록 추가</h2>
+                                        <p className="text-xs font-medium text-slate-400">{machineName}</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={onClose}
-                                    className="size-8 flex items-center justify-center rounded-full bg-slate-200/50 text-slate-500 hover:bg-slate-200 transition-colors"
+                                    className="size-8 flex items-center justify-center rounded-full bg-slate-200/50 text-slate-500 hover:bg-slate-200 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue"
+                                    aria-label="닫기"
                                 >
                                     <X size={18} />
                                 </button>
@@ -101,21 +105,21 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
                         <div className="flex-1 overflow-y-auto p-6">
                             {isSuccess ? (
                                 <motion.div
-                                    initial={{ opacity: 0, scale: 0.9 }}
+                                    initial={{ opacity: 0, scale: 0.95 }}
                                     animate={{ opacity: 1, scale: 1 }}
                                     className="flex flex-col items-center justify-center py-12 text-center"
                                 >
                                     <div className="size-20 bg-emerald-100 text-emerald-500 rounded-full flex items-center justify-center mb-6">
                                         <CheckCircle2 size={40} />
                                     </div>
-                                    <h3 className="text-xl font-black text-slate-900 mb-2">저장 완료!</h3>
-                                    <p className="text-slate-500 font-bold">기록이 안전하게 보관되었습니다.</p>
+                                    <h3 className="text-xl font-bold text-slate-900 mb-2" style={{ fontFamily: 'var(--font-heading)' }}>저장 완료!</h3>
+                                    <p className="text-slate-500 font-medium">기록이 안전하게 보관되었습니다.</p>
                                 </motion.div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-8">
                                     {/* Action Type Selection */}
                                     <div className="space-y-4">
-                                        <label className="text-sm font-black text-slate-700 block ml-1">작업 유형</label>
+                                        <label className="text-sm font-semibold text-slate-700 block ml-1">작업 유형</label>
                                         <div className="grid grid-cols-3 gap-3">
                                             {actionTypes.map((type) => (
                                                 <button
@@ -123,17 +127,18 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
                                                     type="button"
                                                     onClick={() => setActionType(type.id)}
                                                     className={cn(
-                                                        "flex flex-col items-center gap-3 p-4 rounded-3xl border-2 transition-all",
+                                                        "flex flex-col items-center gap-3 p-4 border-2 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2",
                                                         actionType === type.id
-                                                            ? "bg-white border-signal-blue shadow-lg shadow-blue-500/10 scale-[1.02]"
+                                                            ? "bg-white border-signal-blue shadow-lg scale-[1.02]"
                                                             : "bg-slate-50 border-transparent text-slate-400 opacity-60 grayscale"
                                                     )}
+                                                    style={{ borderRadius: 'var(--radius-lg)' }}
                                                 >
-                                                    <div className={cn("size-10 rounded-xl flex items-center justify-center", type.color)}>
+                                                    <div className={cn("size-10 flex items-center justify-center", type.color)} style={{ borderRadius: 'var(--radius-sm)' }}>
                                                         <type.icon size={20} />
                                                     </div>
                                                     <span className={cn(
-                                                        "text-[11px] font-black tracking-tight",
+                                                        "text-[11px] font-semibold tracking-tight",
                                                         actionType === type.id ? "text-slate-900" : "text-slate-400"
                                                     )}>
                                                         {type.label}
@@ -145,7 +150,7 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
 
                                     {/* Performed At */}
                                     <div className="space-y-3">
-                                        <label className="text-sm font-black text-slate-700 block ml-1">수행 일시</label>
+                                        <label className="text-sm font-semibold text-slate-700 block ml-1">수행 일시</label>
                                         <div className="relative">
                                             <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                                             <input
@@ -153,7 +158,8 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
                                                 value={performedAt}
                                                 onChange={(e) => setPerformedAt(e.target.value)}
                                                 max="9999-12-31T23:59"
-                                                className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-sm font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-signal-blue/20 focus:border-signal-blue transition-all"
+                                                className="w-full bg-slate-50 border border-slate-100 py-4 pl-12 pr-4 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-signal-blue/20 focus:border-signal-blue transition-all"
+                                                style={{ borderRadius: 'var(--radius-md)' }}
                                                 required
                                             />
                                         </div>
@@ -161,11 +167,12 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
 
                                     {/* Description */}
                                     <div className="space-y-3">
-                                        <label className="text-sm font-black text-slate-700 block ml-1">상세 내용</label>
+                                        <label className="text-sm font-semibold text-slate-700 block ml-1">상세 내용</label>
                                         <textarea
                                             value={description}
                                             onChange={(e) => setDescription(e.target.value)}
-                                            className="w-full h-32 p-5 rounded-3xl bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-signal-blue/20 focus:border-signal-blue text-sm font-bold text-slate-900 placeholder:text-slate-400 leading-relaxed transition-all resize-none"
+                                            className="w-full h-32 p-5 bg-slate-50 border border-slate-100 focus:outline-none focus:ring-2 focus:ring-signal-blue/20 focus:border-signal-blue text-sm font-medium text-slate-900 placeholder:text-slate-400 leading-relaxed transition-all resize-none"
+                                            style={{ borderRadius: 'var(--radius-lg)' }}
                                             placeholder="점검 내용이나 교체한 부품 정보를 입력해주세요."
                                             required
                                         />
@@ -174,7 +181,8 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
                                     <Button
                                         type="submit"
                                         disabled={mutation.isPending}
-                                        className="w-full h-14 bg-slate-900 hover:bg-black text-white rounded-3xl font-black text-base shadow-xl transition-all active:scale-[0.98] disabled:opacity-50"
+                                        className="w-full h-14 bg-slate-900 hover:bg-black text-white font-semibold text-base shadow-lg transition-all active:scale-[0.98] disabled:opacity-50"
+                                        style={{ borderRadius: 'var(--radius-lg)' }}
                                     >
                                         {mutation.isPending ? (
                                             <Loader2 size={20} className="animate-spin" />

@@ -89,38 +89,39 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+                        className="fixed inset-0 bg-slate-900/40 z-[100]"
+                        style={{ backdropFilter: 'blur(4px)' }}
                     />
 
-                    {/* Modal Content */}
                     <motion.div
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
                         onClick={(e) => e.stopPropagation()}
-                        className="fixed inset-x-0 bottom-0 bg-white rounded-t-[2.5rem] z-[101] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
+                        className="fixed inset-x-0 bottom-0 bg-white z-[101] shadow-2xl flex flex-col max-h-[85vh] overflow-hidden"
+                        style={{ borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)' }}
                     >
                         {/* Header */}
-                        <div className="p-6 border-b border-slate-50 flex items-center justify-between bg-white shrink-0">
+                        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
                             <div className="flex items-center gap-3">
-                                <div className="p-2.5 bg-slate-50 rounded-xl text-slate-400">
+                                <div className="p-2.5 bg-slate-50 text-slate-400" style={{ borderRadius: 'var(--radius-sm)' }}>
                                     <Bell size={20} />
                                 </div>
                                 <div>
-                                    <h3 className="text-xl font-black text-slate-900">알림</h3>
-                                    <p className="text-xs text-slate-400 font-bold">새로운 소식을 확인하세요</p>
+                                    <h3 className="text-xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>알림</h3>
+                                    <p className="text-xs text-slate-400 font-medium">새로운 소식을 확인하세요</p>
                                 </div>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="size-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                className="size-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue"
+                                aria-label="닫기"
                             >
                                 <X size={20} />
                             </button>
@@ -131,12 +132,12 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                             {isLoading ? (
                                 <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
                                     <Loader2 className="size-8 animate-spin" />
-                                    <p className="font-bold text-sm">알림을 불러오는 중...</p>
+                                    <p className="font-medium text-sm">알림을 불러오는 중...</p>
                                 </div>
                             ) : notifications.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">
                                     <Bell size={40} className="mb-2 opacity-20" />
-                                    <p className="font-bold text-sm">새로운 알림이 없습니다</p>
+                                    <p className="font-medium text-sm">새로운 알림이 없습니다</p>
                                 </div>
                             ) : (
                                 notifications.map((notif) => {
@@ -148,25 +149,28 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                                             key={notif.id}
                                             onClick={() => !notif.isRead && markAsReadMutation.mutate(notif.id)}
                                             className={cn(
-                                                "p-5 rounded-[1.5rem] border transition-all active:scale-[0.98] relative cursor-pointer",
-                                                notif.isRead ? "bg-white border-slate-100 opacity-60" : "bg-slate-50 border-slate-100 shadow-sm"
+                                                "p-5 border transition-all active:scale-[0.98] relative cursor-pointer",
+                                                notif.isRead ? "bg-white border-slate-100 opacity-60" : "bg-slate-50 border-slate-100 shadow-card"
                                             )}
+                                            style={{ borderRadius: 'var(--radius-md)' }}
                                         >
                                             {!notif.isRead && (
                                                 <div className="absolute top-5 right-5 size-2 bg-rose-500 rounded-full" />
                                             )}
                                             <div className="flex gap-4">
-                                                <div className={cn("size-12 shrink-0 rounded-2xl flex items-center justify-center", config.color)}>
+                                                <div className={cn("size-12 shrink-0 flex items-center justify-center", config.color)}
+                                                    style={{ borderRadius: 'var(--radius-md)' }}
+                                                >
                                                     <Icon size={24} />
                                                 </div>
                                                 <div className="flex-1 pr-4">
                                                     <div className="flex justify-between items-start mb-1">
-                                                        <h4 className="font-black text-slate-900">{notif.title}</h4>
-                                                        <span className="text-[10px] font-bold text-slate-400 whitespace-nowrap">
+                                                        <h4 className="font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>{notif.title}</h4>
+                                                        <span className="text-[10px] font-medium text-slate-400 whitespace-nowrap">
                                                             {formatRelativeTime(notif.createdAt)}
                                                         </span>
                                                     </div>
-                                                    <p className="text-sm font-bold text-slate-500 leading-relaxed break-keep">
+                                                    <p className="text-sm font-medium text-slate-500 leading-relaxed break-keep">
                                                         {notif.message}
                                                     </p>
                                                 </div>
@@ -182,11 +186,11 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                             <button
                                 onClick={() => markAllReadMutation.mutate()}
                                 disabled={notifications.every(n => n.isRead)}
-                                className="text-sm font-black text-slate-400 hover:text-slate-600 disabled:opacity-30"
+                                className="text-sm font-medium text-slate-400 hover:text-slate-600 disabled:opacity-30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue"
                             >
                                 모두 읽음으로 표시
                             </button>
-                            <button className="flex items-center gap-1.5 text-sm font-black text-signal-blue">
+                            <button className="flex items-center gap-1.5 text-sm font-medium text-signal-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue">
                                 <Settings2 size={16} />
                                 알림 설정
                             </button>

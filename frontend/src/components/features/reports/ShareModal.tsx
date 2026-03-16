@@ -50,7 +50,6 @@ export function ShareModal({ isOpen, onClose, reportDate }: ShareModalProps) {
                 setExportType(null);
             }
         } else {
-            // Mock logic for other features
             showToast(`${label} 기능을 준비 중입니다.`, 'info');
         }
     };
@@ -66,53 +65,52 @@ export function ShareModal({ isOpen, onClose, reportDate }: ShareModalProps) {
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+                        className="fixed inset-0 bg-slate-900/40 z-[100]"
+                        style={{ backdropFilter: 'blur(4px)' }}
                     />
 
-                    {/* Toast Notification */}
                     <AnimatePresence>
                         {toast && (
                             <motion.div
                                 initial={{ opacity: 0, y: -20 }}
                                 animate={{ opacity: 1, y: 20 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
-                                className="fixed top-4 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 rounded-2xl bg-slate-900 text-white shadow-xl flex items-center gap-3"
+                                className="fixed top-4 left-1/2 -translate-x-1/2 z-[110] px-6 py-3 bg-slate-900 text-white shadow-xl flex items-center gap-3"
+                                style={{ borderRadius: 'var(--radius-md)' }}
                             >
                                 {toast.type === 'success' && <div className="size-5 rounded-full bg-emerald-500 flex items-center justify-center text-white"><Check size={12} strokeWidth={4} /></div>}
-                                <span className="text-sm font-bold">{toast.message}</span>
+                                <span className="text-sm font-medium">{toast.message}</span>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    {/* Modal Content */}
                     <motion.div
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed inset-x-0 bottom-0 bg-white rounded-t-[2.5rem] z-[101] shadow-2xl p-6 pb-12"
+                        className="fixed inset-x-0 bottom-0 bg-white z-[101] shadow-2xl p-6 pb-12"
+                        style={{ borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)' }}
                     >
-                        {/* Header */}
                         <div className="flex items-center justify-between mb-8">
                             <div>
-                                <h3 className="text-xl font-black text-slate-900 leading-tight">리포트 공유하기</h3>
-                                <p className="text-sm text-slate-400 font-bold">{reportDate} 건강 리포트</p>
+                                <h3 className="text-xl font-bold text-slate-900 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>리포트 공유하기</h3>
+                                <p className="text-sm text-slate-400 font-medium">{reportDate} 건강 리포트</p>
                             </div>
                             <button
                                 onClick={onClose}
-                                className="p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                className="p-2 rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue"
+                                aria-label="닫기"
                             >
                                 <X size={20} />
                             </button>
                         </div>
 
-                        {/* Options Grid */}
                         <div className="grid grid-cols-2 gap-4">
                             {shareOptions.map((option) => (
                                 <button
@@ -120,22 +118,23 @@ export function ShareModal({ isOpen, onClose, reportDate }: ShareModalProps) {
                                     onClick={() => handleShare(option.id, option.label)}
                                     disabled={isExporting}
                                     className={cn(
-                                        "flex flex-col items-center gap-3 p-6 rounded-3xl bg-slate-50 hover:bg-slate-100 transition-all active:scale-95 group",
+                                        "flex flex-col items-center gap-3 p-6 bg-slate-50 hover:bg-slate-100 transition-all active:scale-[0.97] group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2",
                                         isExporting && "opacity-50 cursor-not-allowed"
                                     )}
+                                    style={{ borderRadius: 'var(--radius-lg)' }}
                                 >
                                     <div className={cn(
-                                        "p-4 rounded-2xl transition-transform",
+                                        "p-4 transition-transform",
                                         option.color,
-                                        !isExporting && "group-hover:scale-110"
-                                    )}>
+                                        !isExporting && "group-hover:scale-105"
+                                    )} style={{ borderRadius: 'var(--radius-md)' }}>
                                         {isExporting && exportType === option.id ? (
                                             <Loader2 size={24} className="animate-spin" />
                                         ) : (
                                             <option.icon size={24} />
                                         )}
                                     </div>
-                                    <span className="text-sm font-black text-slate-700">{option.label}</span>
+                                    <span className="text-sm font-semibold text-slate-700">{option.label}</span>
                                 </button>
                             ))}
                         </div>

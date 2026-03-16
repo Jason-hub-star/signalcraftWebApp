@@ -14,12 +14,10 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
     const [activeTab, setActiveTab] = useState<TabType>(initialView);
     const [maintenanceView, setMaintenanceView] = useState<MaintenanceView>('history');
 
-    // Form States
     const [symptom, setSymptom] = useState('');
     const [visitDate, setVisitDate] = useState('');
     const [urgency, setUrgency] = useState<'normal' | 'urgent'>('normal');
 
-    // Service Ticket Mutation
     const { mutate: submitTicket, isPending: isSubmitting } = useMutation({
         mutationFn: async () => {
             const body = {
@@ -51,7 +49,6 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
         }
     }, [isOpen, initialView, machine]);
 
-    // Auto-close on success
     useEffect(() => {
         if (maintenanceView === 'success') {
             const timer = setTimeout(() => {
@@ -80,22 +77,22 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
         <AnimatePresence>
             {isOpen && (
                 <>
-                    {/* Backdrop */}
                     <motion.div
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         onClick={onClose}
-                        className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100]"
+                        className="fixed inset-0 bg-slate-900/40 z-[100]"
+                        style={{ backdropFilter: 'blur(4px)' }}
                     />
 
-                    {/* Modal Content */}
                     <motion.div
                         initial={{ y: '100%' }}
                         animate={{ y: 0 }}
                         exit={{ y: '100%' }}
                         transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                        className="fixed inset-x-0 bottom-0 top-[10%] bg-white rounded-t-[3rem] z-[101] overflow-hidden flex flex-col shadow-2xl"
+                        className="fixed inset-x-0 bottom-0 top-[10%] bg-white z-[101] overflow-hidden flex flex-col shadow-2xl"
+                        style={{ borderTopLeftRadius: 'var(--radius-lg)', borderTopRightRadius: 'var(--radius-lg)' }}
                     >
                         {/* Handle bar */}
                         <div className="w-full flex justify-center py-4">
@@ -103,20 +100,21 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
                         </div>
 
                         {/* Header & Tabs */}
-                        <div className="px-6 border-b border-slate-50">
+                        <div className="px-6 border-b border-slate-100">
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-4">
-                                    <div className={cn("p-3 rounded-2xl", theme.bg)}>
+                                    <div className={cn("p-3", theme.bg)} style={{ borderRadius: 'var(--radius-md)' }}>
                                         <Volume2 className={cn("size-6", theme.color)} />
                                     </div>
                                     <div>
-                                        <h2 className="text-xl font-black text-slate-900 leading-tight">{machine.name}</h2>
-                                        <p className="text-sm text-slate-400 font-bold">{machine.location}</p>
+                                        <h2 className="text-xl font-bold text-slate-900 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>{machine.name}</h2>
+                                        <p className="text-sm text-slate-400 font-medium">{machine.location}</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={onClose}
-                                    className="size-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors"
+                                    className="size-10 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 hover:bg-slate-100 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue"
+                                    aria-label="닫기"
                                 >
                                     <X size={20} />
                                 </button>
@@ -136,7 +134,7 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
                                             if (tab.id === 'maintenance') setMaintenanceView('history');
                                         }}
                                         className={cn(
-                                            "flex items-center gap-2 pb-4 text-sm font-black transition-all relative",
+                                            "flex items-center gap-2 pb-4 text-sm font-semibold transition-all relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2",
                                             activeTab === tab.id ? "text-signal-blue" : "text-slate-400"
                                         )}
                                     >
@@ -144,8 +142,8 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
                                         {tab.label}
                                         {activeTab === tab.id && (
                                             <motion.div
-                                                layoutId="activeTab"
-                                                className="absolute bottom-0 left-0 right-0 h-1 bg-signal-blue rounded-t-full"
+                                                layoutId="detailActiveTab"
+                                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-signal-blue rounded-t-full"
                                             />
                                         )}
                                     </button>
@@ -189,4 +187,3 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
         </AnimatePresence>
     );
 }
-

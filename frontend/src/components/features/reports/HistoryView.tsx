@@ -32,9 +32,10 @@ export function HistoryView({ deviceId, onSelectDate }: HistoryViewProps) {
 
     return (
         <motion.div
-            initial={{ opacity: 0, x: 20 }}
+            initial={{ opacity: 0, x: 16 }}
             animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -20 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
             className="space-y-6"
         >
             {/* Search / Filter */}
@@ -43,7 +44,8 @@ export function HistoryView({ deviceId, onSelectDate }: HistoryViewProps) {
                 <input
                     type="text"
                     placeholder="날짜 또는 키워드 검색"
-                    className="w-full pl-12 pr-4 py-4 rounded-2xl bg-slate-50 border-none focus:ring-2 focus:ring-signal-blue/20 font-bold text-sm text-slate-600"
+                    className="w-full pl-12 pr-4 py-4 bg-slate-50 border-none focus:ring-2 focus:ring-signal-blue/20 font-medium text-sm text-slate-600"
+                    style={{ borderRadius: 'var(--radius-md)' }}
                 />
             </div>
 
@@ -52,40 +54,41 @@ export function HistoryView({ deviceId, onSelectDate }: HistoryViewProps) {
                 {isLoading ? (
                     <div className="flex flex-col items-center justify-center py-12 gap-3 text-slate-400">
                         <Loader2 className="size-8 animate-spin" />
-                        <p className="font-bold">기록을 불러오고 있습니다...</p>
+                        <p className="font-medium">기록을 불러오고 있습니다...</p>
                     </div>
                 ) : error ? (
-                    <div className="p-6 text-center text-rose-500 font-bold bg-rose-50 rounded-2xl">
+                    <div className="p-6 text-center text-rose-500 font-medium bg-rose-50" style={{ borderRadius: 'var(--radius-md)' }}>
                         불러오기 실패
                     </div>
                 ) : reports.length === 0 ? (
-                    <div className="py-20 text-center bg-white rounded-[2rem] border border-dashed border-slate-200">
-                        <p className="font-bold text-slate-400">리포트 기록이 없습니다.</p>
+                    <div className="py-20 text-center bg-white border border-dashed border-slate-200" style={{ borderRadius: 'var(--radius-lg)' }}>
+                        <p className="font-medium text-slate-400">리포트 기록이 없습니다.</p>
                     </div>
                 ) : (
                     reports.map((report) => (
                         <button
                             key={report.id}
                             onClick={() => onSelectDate(report.report_date)}
-                            className="w-full flex items-center justify-between p-5 rounded-[2rem] bg-white border border-slate-100 hover:border-signal-blue/30 hover:shadow-lg hover:shadow-slate-200/50 transition-all active:scale-[0.98] group text-left"
+                            className="w-full flex items-center justify-between p-5 bg-white border border-slate-100 hover:border-signal-blue/30 hover:shadow-card-hover transition-all active:scale-[0.98] group text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                            style={{ borderRadius: 'var(--radius-lg)' }}
                         >
                             <div className="flex items-center gap-4">
                                 <div className={cn(
-                                    "size-14 rounded-2xl flex flex-col items-center justify-center font-black",
+                                    "size-14 flex flex-col items-center justify-center font-semibold",
                                     report.haccp_status === 'PASS'
                                         ? "bg-emerald-50 text-emerald-600"
                                         : report.haccp_status === 'WARNING'
                                             ? "bg-amber-50 text-amber-600"
                                             : "bg-rose-50 text-rose-600"
-                                )}>
-                                    <span className="text-[10px] uppercase line-height-none mb-0.5">{report.health_score}%</span>
+                                )} style={{ borderRadius: 'var(--radius-md)' }}>
+                                    <span className="text-[10px] uppercase mb-0.5">{report.health_score}%</span>
                                     <Calendar size={20} />
                                 </div>
                                 <div className="flex-1">
-                                    <h4 className="font-black text-slate-900 leading-tight">
+                                    <h4 className="font-bold text-slate-900 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                                         {new Date(report.report_date).toLocaleDateString('ko-KR', { month: 'long', day: 'numeric' })} 리포트
                                     </h4>
-                                    <p className="text-xs text-slate-400 font-bold mt-1 line-clamp-1">{report.ai_summary}</p>
+                                    <p className="text-xs text-slate-400 font-medium mt-1 line-clamp-1">{report.ai_summary}</p>
                                 </div>
                             </div>
                             <ChevronRight size={20} className="text-slate-300 group-hover:text-signal-blue transition-colors" />
