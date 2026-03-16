@@ -27,12 +27,19 @@ export function Header() {
 
     return (
         <>
-            <header className="flex items-center bg-slate-50 p-4 justify-between sticky top-0 z-40 backdrop-blur-md bg-opacity-80 border-b border-slate-100">
-                <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity active:scale-95">
-                    <div className="text-white flex size-10 items-center justify-center rounded-2xl bg-signal-blue shadow-lg shadow-blue-500/20">
+            <header className="flex items-center bg-slate-50 p-4 justify-between sticky top-0 z-40 border-b border-slate-100"
+                style={{ backgroundColor: 'oklch(0.98 0.005 255 / 0.85)', backdropFilter: 'blur(12px)' }}
+            >
+                <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                    style={{ borderRadius: 'var(--radius-sm)' }}
+                    aria-label="SignalCraft 홈으로 이동"
+                >
+                    <div className="text-white flex size-10 items-center justify-center bg-signal-blue"
+                        style={{ borderRadius: 'var(--radius-sm)' }}
+                    >
                         <Factory size={22} />
                     </div>
-                    <h2 className="text-slate-900 text-xl font-extrabold leading-tight tracking-tight">SignalCraft</h2>
+                    <h2 className="text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>SignalCraft</h2>
                 </Link>
 
                 <div className="flex items-center gap-2">
@@ -45,7 +52,9 @@ export function Header() {
                                     installPWA();
                                 }
                             }}
-                            className="flex items-center gap-2 px-3 py-2 text-signal-blue bg-blue-50 hover:bg-blue-100 rounded-xl transition-all font-bold text-sm active:scale-90"
+                            className="flex items-center gap-2 px-3 py-2 text-signal-blue bg-blue-50 hover:bg-blue-100 transition-colors font-medium text-sm active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                            style={{ borderRadius: 'var(--radius-sm)' }}
+                            aria-label="앱 설치"
                         >
                             <Download size={18} />
                             <span>앱 설치</span>
@@ -53,18 +62,22 @@ export function Header() {
                     )}
                     <button
                         onClick={() => setIsNotifOpen(true)}
-                        className="p-2.5 text-slate-500 hover:bg-white rounded-xl transition-colors relative active:scale-90"
+                        className="p-2.5 text-slate-500 hover:bg-white transition-colors relative active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                        style={{ borderRadius: 'var(--radius-sm)' }}
+                        aria-label={`알림${unreadCount > 0 ? ` (${unreadCount}건 미읽음)` : ''}`}
                     >
                         <Bell size={22} />
                         {unreadCount > 0 && (
-                            <span className="absolute top-2.5 right-2.5 size-4 bg-rose-500 text-[10px] text-white font-black flex items-center justify-center rounded-full border-2 border-slate-50 animate-in zoom-in duration-300">
+                            <span className="absolute top-2 right-2 size-4 bg-rose-500 text-[10px] text-white font-semibold flex items-center justify-center rounded-full border-2 border-slate-50">
                                 {unreadCount > 9 ? '9+' : unreadCount}
                             </span>
                         )}
                     </button>
                     <button
                         onClick={() => setIsProfileOpen(true)}
-                        className="size-10 flex items-center justify-center overflow-hidden rounded-xl bg-white border border-slate-100 shadow-sm transition-all active:scale-90"
+                        className="size-10 flex items-center justify-center overflow-hidden bg-white border border-slate-100 transition-colors active:scale-[0.95] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                        style={{ borderRadius: 'var(--radius-sm)' }}
+                        aria-label="프로필 설정"
                     >
                         <User size={20} className="text-slate-400" />
                     </button>

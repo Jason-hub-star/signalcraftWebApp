@@ -15,21 +15,26 @@ export function Badge({ children, className, variant = 'neutral', ...props }: Ba
         neutral: 'bg-slate-50 text-slate-500 border-slate-100',
     };
 
+    const dotColors = {
+        success: 'bg-emerald-500',
+        warning: 'bg-orange-500',
+        error: 'bg-red-500',
+        info: 'bg-blue-500',
+        neutral: 'bg-slate-400',
+    };
+
     return (
         <span
             className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-[11px] font-black border uppercase tracking-wider",
+                "inline-flex items-center gap-1.5 px-3 py-1.5 text-[11px] font-semibold border uppercase tracking-wider",
+                `rounded-[${String('var(--radius-sm)')}]`,
                 variants[variant],
                 className
             )}
+            style={{ borderRadius: 'var(--radius-sm)' }}
             {...props}
         >
-            {variant === 'success' && (
-                <span className="relative flex size-1.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-                </span>
-            )}
+            <span className={cn("size-1.5 rounded-full", dotColors[variant])} />
             {children}
         </span>
     );

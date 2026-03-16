@@ -41,10 +41,10 @@ export function DashboardPage() {
             <Header />
             <main className="flex-1 overflow-y-auto pt-4">
                 <div className="px-6 mb-6">
-                    <p className="text-slate-400 text-sm font-bold tracking-tight mb-1">
+                    <p className="text-slate-400 text-sm font-medium tracking-tight mb-1">
                         안녕하세요, {profile?.user.full_name || '사용자'} 님
                     </p>
-                    <h2 className="text-2xl font-black text-slate-900 tracking-tight">좋은 아침입니다 👋</h2>
+                    <h2 className="text-slate-900 tracking-tight">좋은 아침입니다 👋</h2>
                 </div>
 
                 <StatusHero summary={summary} isLoading={isSummaryLoading} />
@@ -56,7 +56,12 @@ export function DashboardPage() {
 
                 <div className="mt-6 mb-4 px-6 flex items-center justify-between">
                     <span className="section-label mb-0">My Machines</span>
-                    <button className="text-[13px] font-black text-signal-blue px-3 py-1 bg-signal-blue/5 rounded-full">전체보기</button>
+                    <button
+                        className="text-[13px] font-semibold text-signal-blue px-3 py-1 bg-signal-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                        style={{ borderRadius: 'var(--radius-lg)' }}
+                    >
+                        전체보기
+                    </button>
                 </div>
                 <MachineList />
             </main>

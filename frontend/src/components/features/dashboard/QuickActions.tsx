@@ -57,7 +57,7 @@ export function QuickActions() {
     ];
 
     return (
-        <div className="flex gap-4 overflow-x-auto px-4 py-4 no-scrollbar">
+        <div className="flex gap-3 overflow-x-auto px-4 py-4 no-scrollbar">
             {actions.map((action, idx) => {
                 const isSilenceAction = action.id === 'silence';
                 const Icon = action.icon;
@@ -65,29 +65,31 @@ export function QuickActions() {
                 return (
                     <motion.div
                         key={action.id}
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: idx * 0.05 }}
+                        initial={{ opacity: 0, y: 8 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: idx * 0.04, duration: 0.3, ease: [0.25, 1, 0.5, 1] }}
                         className="flex-shrink-0"
                     >
                         {isSilenceAction ? (
                             <button
                                 onClick={action.onClick}
                                 disabled={action.isLoading}
-                                className={`flex items-center gap-2.5 rounded-2xl h-14 px-6 shadow-sm border transition-all active:scale-95 flex ${action.isActive
-                                    ? 'bg-blue-50 border-blue-100 text-slate-900 shadow-blue-50/50'
+                                className={`flex items-center gap-2.5 h-12 px-5 border transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2 ${action.isActive
+                                    ? 'bg-blue-50 border-blue-100 text-slate-900'
                                     : 'bg-white border-slate-100 text-slate-400'
                                     }`}
+                                style={{ borderRadius: 'var(--radius-md)' }}
                             >
                                 <Icon className={`${action.color} ${action.isLoading ? 'animate-spin' : ''}`} size={18} />
-                                <span className={`whitespace-nowrap font-bold text-sm ${action.isActive ? 'text-signal-blue' : ''}`}>
+                                <span className={`whitespace-nowrap font-medium text-sm ${action.isActive ? 'text-signal-blue' : ''}`}>
                                     {action.label}
                                 </span>
                             </button>
                         ) : (
                             <Link
                                 to={action.path as string}
-                                className="flex items-center gap-2.5 rounded-2xl h-14 px-6 bg-white shadow-sm border border-slate-100 text-slate-900 text-sm font-bold hover:border-blue-100 transition-colors active:scale-95 flex"
+                                className="flex items-center gap-2.5 h-12 px-5 bg-white border border-slate-100 text-slate-900 text-sm font-medium hover:border-blue-100 transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                                style={{ borderRadius: 'var(--radius-md)' }}
                             >
                                 <Icon className={action.color as string} size={18} />
                                 <span className="whitespace-nowrap">{action.label}</span>

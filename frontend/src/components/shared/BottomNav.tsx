@@ -14,7 +14,10 @@ export function BottomNav() {
     ];
 
     return (
-        <nav className="fixed bottom-0 w-full bg-white/90 backdrop-blur-2xl border-t border-slate-100/50 pb-safe z-50">
+        <nav className="fixed bottom-0 w-full bg-white/92 border-t border-slate-100 pb-safe z-50"
+            style={{ backdropFilter: 'blur(16px)' }}
+            aria-label="메인 네비게이션"
+        >
             <div className="flex justify-around items-center h-20 px-2 max-w-lg mx-auto">
                 {tabs.map((tab) => {
                     const isActive = location.pathname === tab.path;
@@ -22,10 +25,12 @@ export function BottomNav() {
                         <Link
                             key={tab.id}
                             to={tab.path}
-                            className="relative flex flex-col items-center justify-center w-full h-full gap-1 transition-colors duration-300"
+                            className="relative flex flex-col items-center justify-center w-full h-full gap-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                            style={{ borderRadius: 'var(--radius-md)', transitionDuration: 'var(--duration-normal)' }}
+                            aria-current={isActive ? 'page' : undefined}
                         >
                             <motion.div
-                                whileTap={{ scale: 0.85 }}
+                                whileTap={{ scale: 0.9 }}
                                 className={cn(
                                     "relative z-10 flex flex-col items-center gap-1",
                                     isActive ? "text-signal-blue" : "text-slate-400"
@@ -33,16 +38,17 @@ export function BottomNav() {
                             >
                                 <motion.div
                                     animate={isActive ? { y: -2 } : { y: 0 }}
-                                    transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                 >
                                     <tab.icon
                                         size={22}
                                         strokeWidth={isActive ? 2.5 : 2}
                                         className="transition-all"
+                                        style={{ transitionDuration: 'var(--duration-normal)' }}
                                     />
                                 </motion.div>
                                 <span className={cn(
-                                    "text-[10px] font-black tracking-tight",
+                                    "text-[10px] font-semibold tracking-tight",
                                     isActive ? "opacity-100" : "opacity-60"
                                 )}>
                                     {tab.label}
@@ -52,11 +58,12 @@ export function BottomNav() {
                             {isActive && (
                                 <motion.div
                                     layoutId="activeTab"
-                                    className="absolute inset-x-2 inset-y-2 bg-signal-blue/5 rounded-2xl z-0"
+                                    className="absolute inset-x-2 inset-y-2 bg-signal-blue/5 z-0"
+                                    style={{ borderRadius: 'var(--radius-md)' }}
                                     transition={{
                                         type: "spring",
-                                        stiffness: 400,
-                                        damping: 30
+                                        stiffness: 300,
+                                        damping: 25
                                     }}
                                 />
                             )}
