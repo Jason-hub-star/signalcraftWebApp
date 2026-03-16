@@ -52,61 +52,59 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            whileHover={{ y: -4, transition: { duration: 0.2 } }}
-            whileTap={{ scale: 0.98 }}
-            transition={{ delay: index * 0.1, type: "spring", stiffness: 100, damping: 20 }}
-            className="px-2 sm:px-4 py-2 cursor-pointer relative"
+            transition={{ delay: index * 0.06, duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
+            className="px-2 sm:px-4 py-1.5 cursor-pointer relative"
         >
             <Card
-                className="p-0 overflow-hidden border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-500 group relative"
+                className="p-0 overflow-hidden border-slate-100 transition-shadow group relative"
+                style={{ transitionDuration: 'var(--duration-normal)', transitionTimingFunction: 'var(--ease-out-quart)' }}
                 onClick={() => onClick?.(machine)}
             >
-                {/* Background Sparkle Effect on Hover */}
-                <div className="absolute inset-0 bg-gradient-to-tr from-signal-blue/0 via-signal-blue/[0.02] to-signal-blue/0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-                <div className="p-4 sm:p-6 flex gap-4 sm:gap-6 relative z-10">
-                    <motion.div
-                        whileHover={{ scale: 1.1, rotate: -2 }}
-                        className="w-20 h-20 sm:w-24 sm:h-24 shrink-0 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-[1.25rem] sm:rounded-[1.5rem] border border-blue-100/50 overflow-hidden shadow-sm flex items-center justify-center"
+                <div className="p-4 sm:p-5 flex gap-4 sm:gap-5 relative z-10">
+                    <div
+                        className="w-20 h-20 sm:w-22 sm:h-22 shrink-0 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50 overflow-hidden flex items-center justify-center"
+                        style={{ borderRadius: 'var(--radius-md)' }}
                     >
                         {getMachineIcon(machine.type)}
-                    </motion.div>
+                    </div>
 
                     <div className="flex flex-col flex-1 min-w-0">
                         <div className="flex justify-between items-start mb-2">
                             <div>
-                                <motion.h4
-                                    layout
-                                    className="text-[16px] sm:text-[17px] font-black text-slate-900 leading-tight tracking-tight mb-0.5 group-hover:text-signal-blue transition-colors truncate"
+                                <h4
+                                    className="text-[16px] sm:text-[17px] font-bold text-slate-900 leading-tight tracking-tight mb-0.5 group-hover:text-signal-blue transition-colors truncate"
+                                    style={{ fontFamily: 'var(--font-heading)', transitionDuration: 'var(--duration-normal)' }}
                                 >
                                     {machine.name}
-                                </motion.h4>
-                                <p className="text-[12px] sm:text-[13px] text-slate-400 font-bold tracking-tight truncate">
+                                </h4>
+                                <p className="text-[12px] sm:text-[13px] text-slate-400 font-medium tracking-tight truncate">
                                     {machine.location}
                                 </p>
                             </div>
                             <div className="relative">
-                                <motion.button
-                                    whileHover={{ scale: 1.1, backgroundColor: '#f8fafc' }}
-                                    whileTap={{ scale: 0.9 }}
+                                <button
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         setIsMenuOpen(!isMenuOpen);
                                     }}
-                                    className="text-slate-300 p-2 hover:bg-slate-50 rounded-2xl transition-all active:scale-90"
+                                    className="text-slate-300 p-2 hover:bg-slate-50 transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                                    style={{ borderRadius: 'var(--radius-md)' }}
+                                    aria-label="설비 메뉴 열기"
                                 >
                                     <MoreHorizontal size={20} />
-                                </motion.button>
+                                </button>
 
                                 <AnimatePresence>
                                     {isMenuOpen && (
                                         <motion.div
-                                            initial={{ opacity: 0, scale: 0.9, y: -10, filter: "blur(4px)" }}
-                                            animate={{ opacity: 1, scale: 1, y: 0, filter: "blur(0px)" }}
-                                            exit={{ opacity: 0, scale: 0.9, y: -10, filter: "blur(4px)" }}
-                                            className="absolute right-0 top-12 w-32 bg-white rounded-2xl shadow-xl border border-slate-100 py-2 z-50 overflow-hidden"
+                                            initial={{ opacity: 0, scale: 0.95, y: -8 }}
+                                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                                            exit={{ opacity: 0, scale: 0.95, y: -8 }}
+                                            transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
+                                            className="absolute right-0 top-12 w-32 bg-white shadow-lg border border-slate-100 py-1.5 z-50 overflow-hidden"
+                                            style={{ borderRadius: 'var(--radius-md)' }}
                                         >
                                             <button
                                                 onClick={(e) => {
@@ -114,7 +112,7 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                                                     onManage?.(machine);
                                                     setIsMenuOpen(false);
                                                 }}
-                                                className="w-full px-4 py-2.5 flex items-center gap-2 text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors"
+                                                className="w-full px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
                                             >
                                                 <Settings2 size={16} />
                                                 관리
@@ -125,7 +123,7 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                                                     onDelete?.(machine.id);
                                                     setIsMenuOpen(false);
                                                 }}
-                                                className="w-full px-4 py-2.5 flex items-center gap-2 text-sm font-bold text-rose-500 hover:bg-rose-50 transition-colors"
+                                                className="w-full px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
                                             >
                                                 <Trash2 size={16} />
                                                 삭제
@@ -137,58 +135,44 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                         </div>
 
                         <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 mt-auto">
-                            <motion.div
-                                animate={machine.status === 'running' ? {
-                                    scale: [1, 1.05, 1],
-                                    opacity: [1, 0.9, 1]
-                                } : {}}
-                                transition={{ repeat: Infinity, duration: 3, ease: "easeInOut" }}
-                            >
-                                <Badge variant={getStatusVariant(machine.status)}>
-                                    {getStatusLabel(machine.status)}
-                                </Badge>
-                            </motion.div>
+                            <Badge variant={getStatusVariant(machine.status)}>
+                                {getStatusLabel(machine.status)}
+                            </Badge>
 
-                            <motion.div
-                                animate={machine.health > 90 ? {
-                                    boxShadow: ["0 0 0px rgba(16, 185, 129, 0)", "0 0 12px rgba(16, 185, 129, 0.2)", "0 0 0px rgba(16, 185, 129, 0)"]
-                                } : {}}
-                                transition={{ repeat: Infinity, duration: 4 }}
-                                className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 rounded-full border border-slate-100"
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-100"
+                                style={{ borderRadius: 'var(--radius-sm)' }}
                             >
                                 <Zap className={cn(
                                     "size-3.5",
-                                    machine.health > 90 ? "text-signal-mint fill-signal-mint/20" : "text-signal-orange fill-signal-orange/20"
+                                    machine.health > 90 ? "text-signal-mint" : "text-signal-orange"
                                 )} />
-                                <span className="text-[12px] font-black text-slate-600">
+                                <span className="text-[12px] font-semibold text-slate-600">
                                     {machine.health}%
                                 </span>
-                            </motion.div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <motion.div
-                    initial={false}
-                    animate={{ backgroundColor: machine.status === 'warning' ? "rgba(239, 68, 68, 0.05)" : "rgba(248, 250, 252, 0.5)" }}
+                <div
                     className={cn(
-                        "px-4 sm:px-6 py-3 sm:py-4 flex items-center gap-3 transition-all border-t border-slate-50",
-                        machine.status === 'warning' ? "text-signal-red" : "text-slate-600"
+                        "px-4 sm:px-5 py-3 sm:py-3.5 flex items-center gap-3 border-t border-slate-100",
+                        machine.status === 'warning' ? "bg-red-50/50 text-signal-red" : "bg-slate-50/50 text-slate-600"
                     )}
                 >
                     <div className={cn(
-                        "p-2 rounded-xl backdrop-blur-sm",
+                        "p-2",
                         machine.status === 'warning' ? "bg-signal-red/10" : "bg-signal-blue/10"
-                    )}>
+                    )} style={{ borderRadius: 'var(--radius-sm)' }}>
                         <PredictionIcon className={cn(
                             "size-4",
                             machine.status === 'warning' ? "text-signal-red" : "text-signal-blue"
                         )} />
                     </div>
-                    <p className="text-[13px] font-bold tracking-tight leading-snug">
+                    <p className="text-[13px] font-medium tracking-tight leading-snug">
                         {machine.prediction}
                     </p>
-                </motion.div>
+                </div>
             </Card>
         </motion.div>
     );
