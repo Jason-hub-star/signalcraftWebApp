@@ -13,6 +13,7 @@ Last Updated: 2026-03-16
 | 일간 리포트 (영수증 형태) | 완료 | Phase 2 |
 | 알림 설정 UI + API | 완료 | Phase 6 |
 | 유지보수 이력관리 | 완료 | 타임라인 UI |
+| 시드 데이터 보강 | 완료 | 30일 리포트, incidents, forecasts 등 |
 | FCM 푸시 알림 | 미완료 | 실제 발송 테스트 필요 |
 | 카카오톡 알림 | 대기 | 사업자 등록 전 |
 | 리포트 공유 (PDF/이미지) | 코드 완료 | 프로덕션 테스트 필요 |
@@ -23,9 +24,28 @@ Last Updated: 2026-03-16
 ## Deployment
 - Frontend: Vercel (signalcraft-web-app.vercel.app)
 - Backend: Railway (signalcraft-api)
-- Database: Supabase (PostgreSQL)
+- Database: Supabase (PostgreSQL) — **프로젝트: `zlcnanvidrjgpuugbcou` (signalcraft)**
 
-## Recent Changes (2026-02-15)
+## DB Seed Data Status
+
+| 테이블 | 행 수 | 내용 |
+|--------|-------|------|
+| `devices` | 7 | 한국어 기기명, GOOD/WARNING/DANGER 상태 |
+| `daily_reports` | 210 | 7기기 × 30일, 상태별 health_score 분포 |
+| `incidents` | 12 | ANOMALY/OVERLOAD/OFFLINE, DANGER/WARNING 집중 |
+| `forecasts` | 7 | 모든 기기 golden_time (DANGER 3일, WARNING 12일, GOOD 45일+) |
+| `machine_event_logs` | 870 | 최근 3일 ON/OFF/DEF/DOOR 이벤트 |
+| `notifications` | 6 | alert/report/maintenance 알림 |
+| `maintenance_logs` | 12 | CLEANING/CHECK/PART_REPLACE 이력 |
+| `notification_settings` | 1 | 데모 사용자 설정 |
+
+## Recent Changes (2026-03-16)
+1. Supabase 프로젝트 전환 (`zigwndnmxmxctcayeavx` → `zlcnanvidrjgpuugbcou`) — Commit: `f4bafd5`
+2. 시드 데이터 보강 (daily_reports 210행, incidents 12행, forecasts 7행 등) — Commit: `f4bafd5`
+3. 문서 시스템 재구조화 — Commit: `74ca340`
+4. Railway 디버그 엔드포인트 추가 — Commit: `f43a151`
+
+## Previous Changes (2026-02-15)
 1. 알림시스템 연동 — Commit: `6018141`
 2. 날짜 설정오류 수정 — Commit: `e2bedbe`
 3. 일반 버그 수정 — Commit: `0ef6b3b`

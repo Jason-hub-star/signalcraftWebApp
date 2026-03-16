@@ -4,6 +4,18 @@ Last Updated: 2026-03-16
 
 ## High Priority
 
+### Railway/Vercel 환경변수 전환
+- **이슈**: 새 Supabase 프로젝트(`zlcnanvidrjgpuugbcou`)로 로컬 .env는 전환 완료, Railway/Vercel 환경변수는 수동 변경 필요
+- **영향**: 프로덕션에서 여전히 구 프로젝트를 바라보고 있음
+- **다음 액션**: Railway → `SUPABASE_URL` + `SUPABASE_KEY`, Vercel → `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` 변경 후 재배포
+- **소유자**: Dev
+
+### RLS 정책 추가 필요
+- **이슈**: `incidents`, `machine_event_logs`, `forecasts` 테이블에 SELECT RLS 정책 미설정 → anon key로 데이터 읽기 불가
+- **영향**: Frontend에서 해당 테이블 데이터 조회 실패 가능
+- **다음 액션**: Supabase SQL Editor에서 각 테이블에 `FOR SELECT TO public USING (true)` 정책 추가
+- **소유자**: Dev
+
 ### Production Verification 필요
 - **이슈**: 최근 배포된 기능 검증 미완료 (알림시스템, 날짜수정, 유지보수 이력)
 - **영향**: 프로덕션 환경에서 기능 정상 작동 확인 필요

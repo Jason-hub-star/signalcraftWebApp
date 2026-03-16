@@ -60,7 +60,7 @@
 ## 10) 배포 정보
 - Frontend: Vercel (signalcraft-web-app.vercel.app)
 - Backend: Railway (signalcraft-api)
-- Database: Supabase
+- Database: Supabase — 프로젝트 `zlcnanvidrjgpuugbcou` (signalcraft, ap-northeast-2)
 
 ## 11) 비기능/운영 원칙
 - mutation 후 무효화는 대상 key만 정밀 invalidation

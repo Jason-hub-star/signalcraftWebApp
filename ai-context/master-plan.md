@@ -28,7 +28,13 @@
 | Phase 5 | Advanced UX | 완료 | 다크 모드, Toss 톤앤매너 |
 | Phase 6 | Notifications | 진행 중 | 알림 상세 설정 UI/API, 카카오톡 알림 |
 
-## 4) 최근 완료 항목 (2026-02-15)
+## 4) 최근 완료 항목 (2026-03-16)
+- Supabase 프로젝트 전환 (zigwndnmxmxctcayeavx → zlcnanvidrjgpuugbcou)
+- 시드 데이터 대규모 보강 (daily_reports 210행, incidents 12행, forecasts 7행, machine_event_logs 870행)
+- 문서 시스템 재구조화 (robotapp2/GameLab 패턴 적용)
+- supabase/seed.sql + config.toml 추가
+
+### 이전 완료 (2026-02-15)
 - 알림시스템 연동 (설정 UI + Backend API)
 - 날짜 설정오류 수정
 - 일반 버그 수정
@@ -37,12 +43,14 @@
 - Backend Fly.io → Railway 마이그레이션
 
 ## 5) 다음 우선순위
-1. Production 배포 검증 (알림시스템, 유지보수 이력)
-2. FCM 푸시 알림 실제 발송 테스트
-3. Backend API 안정성 점검
-4. 리포트 공유 기능 안정화
-5. Frontend E2E 자동화 (Playwright)
-6. 다크 모드 구현
+1. Railway/Vercel 환경변수 변경 (새 Supabase 프로젝트로 전환)
+2. RLS 정책 점검 (incidents, machine_event_logs, forecasts 테이블 SELECT 정책 추가)
+3. Production 배포 검증 (알림시스템, 유지보수 이력)
+4. FCM 푸시 알림 실제 발송 테스트
+5. Backend API 안정성 점검
+6. 리포트 공유 기능 안정화
+7. Frontend E2E 자동화 (Playwright)
+8. 다크 모드 구현
 
 ## 6) 운영 규칙
 - 작업 중에는 `docs/daily/YYYY-MM-DD/` 중심 갱신
