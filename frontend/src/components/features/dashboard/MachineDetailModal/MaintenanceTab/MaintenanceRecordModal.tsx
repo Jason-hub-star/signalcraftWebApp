@@ -4,6 +4,9 @@ import { X, Wrench, FileText, Calendar, Loader2, CheckCircle2 } from 'lucide-rea
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { cn } from '../../../../../lib/utils';
 import { Button } from '../../../../ui/Button';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { classTokens } from '@/styles/tokens';
 
 interface MaintenanceRecordModalProps {
     isOpen: boolean;
@@ -15,9 +18,9 @@ interface MaintenanceRecordModalProps {
 type ActionType = 'CLEANING' | 'CHECK' | 'PART_REPLACE';
 
 const actionTypes: { id: ActionType; label: string; icon: any; color: string }[] = [
-    { id: 'CLEANING', label: '청소/세척', icon: Wrench, color: 'text-signal-blue bg-signal-blue/10' },
-    { id: 'CHECK', label: '정기 점검', icon: FileText, color: 'text-amber-500 bg-amber-500/10' },
-    { id: 'PART_REPLACE', label: '부품 교체', icon: CheckCircle2, color: 'text-emerald-500 bg-emerald-500/10' },
+    { id: 'CLEANING', label: '청소/세척', icon: Wrench, color: classTokens.maintenanceAction.CLEANING.icon },
+    { id: 'CHECK', label: '정기 점검', icon: FileText, color: classTokens.maintenanceAction.CHECK.icon },
+    { id: 'PART_REPLACE', label: '부품 교체', icon: CheckCircle2, color: classTokens.maintenanceAction.PART_REPLACE.icon },
 ];
 
 export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName }: MaintenanceRecordModalProps) {
@@ -30,7 +33,7 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
 
     const mutation = useMutation({
         mutationFn: async (data: any) => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/dashboard/machine-detail/maintenance`, {
+            const response = await apiFetch('/dashboard/machine-detail/maintenance', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data),
@@ -39,7 +42,7 @@ export function MaintenanceRecordModal({ isOpen, onClose, machineId, machineName
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['maintenance-history', machineId] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.maintenanceHistory(machineId) });
             setIsSuccess(true);
             setTimeout(() => {
                 setIsSuccess(false);

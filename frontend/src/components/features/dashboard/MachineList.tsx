@@ -3,15 +3,17 @@ import { useQuery } from '@tanstack/react-query';
 import { type Machine, MachineCard } from './MachineCard';
 import { MachineDetailModal } from './MachineDetailModal';
 import { Loader2 } from 'lucide-react';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
 
 export function MachineList() {
     const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
     const [initialView, setInitialView] = useState<'analysis' | 'maintenance'>('analysis');
 
     const { data, isPending, error } = useQuery<{ machines: Machine[] }>({
-        queryKey: ['machines'],
+        queryKey: QUERY_KEYS.machines,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/machines/`);
+            const response = await apiFetch('/machines/');
             if (!response.ok) throw new Error('설비 목록을 불러오는데 실패했습니다.');
             return response.json();
         },

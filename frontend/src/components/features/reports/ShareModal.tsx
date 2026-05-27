@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Copy, Download, Image as ImageIcon, MessageCircle, Check, Loader2 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { exportToPdf, exportToImage } from '../../../lib/utils/exportUtils';
+import { brandTokens } from '@/styles/tokens';
 
 interface ShareModalProps {
     isOpen: boolean;
@@ -55,7 +56,7 @@ export function ShareModal({ isOpen, onClose, reportDate }: ShareModalProps) {
     };
 
     const shareOptions = [
-        { id: 'kakao', label: '카카오톡', icon: MessageCircle, color: 'bg-[#FEE500] text-[#3c1e1e]' },
+        { id: 'kakao', label: '카카오톡', icon: MessageCircle, color: `${brandTokens.kakao.bgClass} ${brandTokens.kakao.textClass}` },
         { id: 'image', label: '이미지로 저장', icon: ImageIcon, color: 'bg-emerald-50 text-emerald-600' },
         { id: 'pdf', label: 'PDF 내보내기', icon: Download, color: 'bg-rose-50 text-rose-600' },
         { id: 'link', label: '링크 복사', icon: Copy, color: 'bg-blue-50 text-blue-600' },

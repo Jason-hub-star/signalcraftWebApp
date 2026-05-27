@@ -2,6 +2,8 @@ import { PlusCircle, BarChart3, BellOff, Bell, Settings2, Loader2 } from 'lucide
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
 
 interface NotificationSettings {
     push_enabled: boolean;
@@ -15,9 +17,9 @@ export function QuickActions() {
 
     // Fetch notification settings
     const { data: settings, isLoading } = useQuery<NotificationSettings>({
-        queryKey: ['settings', 'notifications'],
+        queryKey: QUERY_KEYS.notificationSettings,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/settings`);
+            const response = await apiFetch('/notifications/settings');
             if (!response.ok) throw new Error('알림 설정 로드 실패');
             return response.json();
         }
@@ -26,7 +28,7 @@ export function QuickActions() {
     // Toggle push notifications mutation
     const toggleMutation = useMutation({
         mutationFn: async (newValue: boolean) => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/settings`, {
+            const response = await apiFetch('/notifications/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ push_enabled: newValue }),
@@ -35,7 +37,7 @@ export function QuickActions() {
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['settings', 'notifications'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.notificationSettings });
         }
     });
 

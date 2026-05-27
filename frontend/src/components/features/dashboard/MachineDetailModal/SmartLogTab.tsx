@@ -4,6 +4,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../../ui/Button';
 import { cn } from '../../../../lib/utils';
 import { type Machine } from '../MachineCard';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { classTokens } from '@/styles/tokens';
 
 interface SmartLogTabProps {
     machine: Machine;
@@ -11,9 +14,9 @@ interface SmartLogTabProps {
 
 export function SmartLogTab({ machine }: SmartLogTabProps) {
     const { data: logs, isPending, error } = useQuery<any[]>({
-        queryKey: ['machine-smart-logs', machine.id],
+        queryKey: QUERY_KEYS.machineSmartLogs(machine.id),
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/dashboard/machine-detail/smart-log?machine_id=${machine.id}`);
+            const response = await apiFetch(`/dashboard/machine-detail/smart-log?machine_id=${machine.id}`);
             if (!response.ok) throw new Error('상세 로그를 불러오는데 실패했습니다.');
             return response.json();
         },
@@ -87,9 +90,7 @@ export function SmartLogTab({ machine }: SmartLogTabProps) {
                                         <td className="px-6 py-4">
                                             <span className={cn(
                                                 "px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase",
-                                                log.event_type === 'ON' ? "bg-blue-100 text-blue-600" :
-                                                    log.event_type === 'DEF' ? "bg-amber-100 text-amber-600" :
-                                                        "bg-rose-100 text-rose-600"
+                                                classTokens.eventType[log.event_type as keyof typeof classTokens.eventType] || classTokens.eventType.default
                                             )}>
                                                 {log.event_type}
                                             </span>

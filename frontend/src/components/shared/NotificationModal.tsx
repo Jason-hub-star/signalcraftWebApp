@@ -2,6 +2,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Bell, Zap, AlertCircle, CheckCircle2, Settings2, Loader2 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { classTokens } from '@/styles/tokens';
 
 interface Notification {
     id: string;
@@ -32,15 +35,15 @@ function formatRelativeTime(dateString: string) {
 const TYPE_CONFIG = {
     alert: {
         icon: AlertCircle,
-        color: 'text-rose-500 bg-rose-50',
+        color: classTokens.notificationType.alert,
     },
     report: {
         icon: Zap,
-        color: 'text-signal-blue bg-blue-50',
+        color: classTokens.notificationType.report,
     },
     maintenance: {
         icon: CheckCircle2,
-        color: 'text-emerald-500 bg-emerald-50',
+        color: classTokens.notificationType.maintenance,
     }
 };
 
@@ -48,9 +51,9 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
     const queryClient = useQueryClient();
 
     const { data, isLoading } = useQuery<{ notifications: Notification[] }>({
-        queryKey: ['notifications'],
+        queryKey: QUERY_KEYS.notifications,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/`);
+            const response = await apiFetch('/notifications/');
             if (!response.ok) throw new Error('알림 로딩 실패');
             return response.json();
         },
@@ -59,27 +62,27 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
 
     const markAsReadMutation = useMutation({
         mutationFn: async (id: string) => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/${id}/read`, {
+            const response = await apiFetch(`/notifications/${id}/read`, {
                 method: 'POST',
             });
             if (!response.ok) throw new Error('알림 읽음 처리 실패');
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.notifications });
         },
     });
 
     const markAllReadMutation = useMutation({
         mutationFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/mark-all-read`, {
+            const response = await apiFetch('/notifications/mark-all-read', {
                 method: 'POST',
             });
             if (!response.ok) throw new Error('전체 읽음 처리 실패');
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['notifications'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.notifications });
         },
     });
 

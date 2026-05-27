@@ -1,5 +1,6 @@
 import { toPng } from 'html-to-image';
 import { jsPDF } from 'jspdf';
+import { colors } from '@/styles/tokens';
 
 /**
  * Captures a DOM element as a PNG image and triggers a download.
@@ -15,7 +16,7 @@ export async function exportToImage(elementId: string, filename: string) {
     try {
         const dataUrl = await toPng(element, {
             quality: 0.95,
-            backgroundColor: '#f8fafc',
+            backgroundColor: colors.slate50,
             pixelRatio: 2,
             height: element.scrollHeight,
             style: {
@@ -46,7 +47,7 @@ export async function exportToPdf(elementId: string, filename: string) {
     try {
         const dataUrl = await toPng(element, {
             quality: 0.95,
-            backgroundColor: '#f8fafc',
+            backgroundColor: colors.slate50,
             pixelRatio: 2,
             height: element.scrollHeight,
             style: {

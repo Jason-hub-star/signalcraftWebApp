@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { StatRow } from './StatRow';
 import { AIInsightCard } from './AIInsightCard';
@@ -7,10 +7,14 @@ import { ShareModal } from './ShareModal';
 import { CheckCircle2, AlertTriangle, ChevronDown, History, Share2, TrendingUp, Zap, Loader2 } from 'lucide-react';
 import { Button } from '../../ui/Button';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AreaChart, Area, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, Tooltip } from 'recharts';
 import { BottomNav } from '../../shared/BottomNav';
 import { Header } from '../../shared/Header';
 import { cn } from '../../../lib/utils';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { chartTokens, classTokens, effects } from '@/styles/tokens';
+import { useElementSize } from '@/lib/useElementSize';
 
 type ViewMode = 'report' | 'history';
 
@@ -33,16 +37,23 @@ interface DailyReport {
     haccp_status: string;
 }
 
+const getHaccpStatusClass = (status: string) => {
+    if (status === 'PASS') return classTokens.haccpStatus.PASS;
+    if (status === 'WARNING') return classTokens.haccpStatus.WARNING;
+    return classTokens.haccpStatus.FAIL;
+};
+
 export function ReportPage() {
     const [viewMode, setViewMode] = useState<ViewMode>('report');
     const [isShareOpen, setIsShareOpen] = useState(false);
     const [selectedDeviceId, setSelectedDeviceId] = useState<string | null>(null);
     const [isDeviceMenuOpen, setIsDeviceMenuOpen] = useState(false);
+    const [trendChartRef, trendChartSize] = useElementSize<HTMLDivElement>();
 
     const { data: machinesData } = useQuery<{ machines: Machine[] }>({
-        queryKey: ['machines'],
+        queryKey: QUERY_KEYS.machines,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/machines/`);
+            const response = await apiFetch('/machines/');
             if (!response.ok) throw new Error('설비 목록 로드 실패');
             return response.json();
         },
@@ -59,10 +70,10 @@ export function ReportPage() {
     const selectedMachine = machines.find(m => m.id === selectedDeviceId);
 
     const { data: latestReport, isLoading: isReportLoading } = useQuery<DailyReport>({
-        queryKey: ['reports', 'latest', selectedDeviceId],
+        queryKey: QUERY_KEYS.reportsLatest(selectedDeviceId),
         queryFn: async () => {
             if (!selectedDeviceId) return null;
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/reports/latest/${selectedDeviceId}`);
+            const response = await apiFetch(`/reports/latest/${selectedDeviceId}`);
             if (!response.ok) {
                 if (response.status === 404) return null;
                 throw new Error('리포트 로드 실패');
@@ -73,10 +84,10 @@ export function ReportPage() {
     });
 
     const { data: historyData } = useQuery<{ reports: DailyReport[] }>({
-        queryKey: ['reports', 'trend', selectedDeviceId],
+        queryKey: QUERY_KEYS.reportsTrend(selectedDeviceId),
         queryFn: async () => {
             if (!selectedDeviceId) return { reports: [] };
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/reports/?device_id=${selectedDeviceId}`);
+            const response = await apiFetch(`/reports/?device_id=${selectedDeviceId}`);
             if (!response.ok) throw new Error('트렌드 데이터 로드 실패');
             return response.json();
         },
@@ -198,30 +209,28 @@ export function ReportPage() {
                                             <TrendingUp size={18} className="text-signal-blue" />
                                             주간 건강 트렌드
                                         </h3>
-                                        <div className="h-48 w-full p-4 bg-white border border-slate-100 shadow-card" style={{ borderRadius: 'var(--radius-lg)' }}>
-                                            {trendData.length > 0 ? (
-                                                <ResponsiveContainer width="100%" height="100%">
-                                                    <AreaChart data={trendData}>
+                                        <div ref={trendChartRef} className="h-48 w-full p-4 bg-white border border-slate-100 shadow-card" style={{ borderRadius: 'var(--radius-lg)' }}>
+                                            {trendData.length > 0 && trendChartSize.width > 1 && trendChartSize.height > 1 ? (
+                                                    <AreaChart data={trendData} width={trendChartSize.width} height={trendChartSize.height}>
                                                         <defs>
                                                             <linearGradient id="reportTrend" x1="0" y1="0" x2="0" y2="1">
-                                                                <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1} />
-                                                                <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
+                                                                <stop offset="5%" stopColor={chartTokens.primaryFill} stopOpacity={0.1} />
+                                                                <stop offset="95%" stopColor={chartTokens.primaryFill} stopOpacity={0} />
                                                             </linearGradient>
                                                         </defs>
                                                         <Tooltip
-                                                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                                                            contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: effects.softShadow as string }}
                                                             labelStyle={{ fontWeight: 700 }}
                                                         />
                                                         <Area
                                                             type="monotone"
                                                             dataKey="health"
-                                                            stroke="#3B82F6"
+                                                            stroke={chartTokens.primaryStroke}
                                                             strokeWidth={3}
                                                             fillOpacity={1}
                                                             fill="url(#reportTrend)"
                                                         />
                                                     </AreaChart>
-                                                </ResponsiveContainer>
                                             ) : (
                                                 <div className="h-full flex items-center justify-center text-slate-300 font-medium">트렌드 데이터 부족</div>
                                             )}
@@ -235,35 +244,25 @@ export function ReportPage() {
                                         transition={{ duration: 0.4, ease: [0.25, 1, 0.5, 1] }}
                                         className={cn(
                                             "relative overflow-hidden p-6 border",
-                                            latestReport.haccp_status === 'PASS'
-                                                ? "bg-emerald-50/50 border-emerald-100"
-                                                : latestReport.haccp_status === 'WARNING'
-                                                    ? "bg-amber-50/50 border-amber-100"
-                                                    : "bg-rose-50/50 border-rose-100"
+                                            getHaccpStatusClass(latestReport.haccp_status).summary
                                         )}
                                         style={{ borderRadius: 'var(--radius-lg)' }}
                                     >
                                         <div className={cn(
                                             "absolute top-0 left-0 w-1 h-full",
-                                            latestReport.haccp_status === 'PASS' ? "bg-emerald-400" :
-                                                latestReport.haccp_status === 'WARNING' ? "bg-amber-400" : "bg-rose-400"
+                                            getHaccpStatusClass(latestReport.haccp_status).stripe
                                         )} />
                                         <div className="flex items-start gap-4">
                                             <div className={cn(
                                                 "flex size-14 shrink-0 items-center justify-center shadow-sm",
-                                                latestReport.haccp_status === 'PASS'
-                                                    ? "bg-emerald-100 text-emerald-600"
-                                                    : latestReport.haccp_status === 'WARNING'
-                                                        ? "bg-amber-100 text-amber-600"
-                                                        : "bg-rose-100 text-rose-600"
+                                                getHaccpStatusClass(latestReport.haccp_status).icon
                                             )} style={{ borderRadius: 'var(--radius-md)' }}>
                                                 {latestReport.haccp_status === 'PASS' ? <CheckCircle2 size={32} /> : <AlertTriangle size={32} />}
                                             </div>
                                             <div className="space-y-1">
                                                 <h3 className={cn(
                                                     "section-label mb-0",
-                                                    latestReport.haccp_status === 'PASS' ? "text-emerald-600/70" :
-                                                        latestReport.haccp_status === 'WARNING' ? "text-amber-600/70" : "text-rose-600/70"
+                                                    getHaccpStatusClass(latestReport.haccp_status).label
                                                 )}>상태 요약</h3>
                                                 <p className="text-xl font-bold text-slate-900 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
                                                     {latestReport.haccp_status === 'PASS' ? "설비 상태가 완벽했습니다." :
@@ -315,7 +314,7 @@ export function ReportPage() {
                                                 value={`${latestReport.cycle_count}회`}
                                                 status={latestReport.cycle_count > 20 ? "Warning" : "Optimal"}
                                                 progress={Math.min(100, (latestReport.cycle_count / 30) * 100)}
-                                                color={latestReport.cycle_count > 20 ? "bg-amber-400" : "bg-emerald-400"}
+                                                color={latestReport.cycle_count > 20 ? classTokens.statProgress.warning : classTokens.statProgress.healthy}
                                             />
                                         </div>
                                     </section>

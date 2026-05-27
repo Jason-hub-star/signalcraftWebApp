@@ -1,6 +1,6 @@
 # SignalCraft Biz Master Plan
 
-기준일: 2026-03-16 (KST)
+기준일: 2026-05-27 (KST)
 프로젝트: SignalCraft Biz — 무설정 AI 시설 관리 솔루션
 협업 문서 경로: `ai-context`
 
@@ -28,7 +28,13 @@
 | Phase 5 | Advanced UX | 완료 | 다크 모드, Toss 톤앤매너 |
 | Phase 6 | Notifications | 진행 중 | 알림 상세 설정 UI/API, 카카오톡 알림 |
 
-## 4) 최근 완료 항목 (2026-03-16)
+## 4) 최근 완료 항목 (2026-05-27)
+- Frontend 개발 목업 API 모드 전환 (`apiFetch` 단일 게이트웨이, 개발 모드 기본 mock)
+- 위험/주의/정상 설비가 모두 보이는 목업 데이터 구성 (DANGER 1, WARNING 1, GOOD 1)
+- 디자인 토큰 공유화 보강 (`styles/tokens.ts`, `QUERY_KEYS` 팩토리 추가)
+- 상태/브랜드/차트 중심 semantic class token 적용 (설비 상태, HACCP, 이벤트, 정비, 알림, 네비, 프로필)
+
+### 이전 완료 (2026-03-16)
 - Supabase 프로젝트 전환 (zigwndnmxmxctcayeavx → zlcnanvidrjgpuugbcou)
 - 시드 데이터 대규모 보강 (daily_reports 210행, incidents 12행, forecasts 7행, machine_event_logs 870행)
 - 문서 시스템 재구조화 (robotapp2/GameLab 패턴 적용)

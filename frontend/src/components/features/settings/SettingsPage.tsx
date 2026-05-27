@@ -7,6 +7,9 @@ import { ProfileCard } from './ProfileCard';
 import { SettingsGroup } from './SettingsGroup';
 import { SettingsItem } from './SettingsItem';
 import { Header } from '../../shared/Header';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { cssVars } from '@/styles/tokens';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -40,9 +43,9 @@ export function SettingsPage() {
     const [darkMode, setDarkMode] = useState(false);
 
     const { data: settings, isLoading } = useQuery<NotificationSettings>({
-        queryKey: ['settings', 'notifications'],
+        queryKey: QUERY_KEYS.notificationSettings,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/settings`);
+            const response = await apiFetch('/notifications/settings');
             if (!response.ok) throw new Error('알림 설정 로드 실패');
             return response.json();
         }
@@ -50,7 +53,7 @@ export function SettingsPage() {
 
     const updateSettingsMutation = useMutation({
         mutationFn: async (newSettings: Partial<NotificationSettings>) => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/settings`, {
+            const response = await apiFetch('/notifications/settings', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newSettings),
@@ -59,7 +62,7 @@ export function SettingsPage() {
             return response.json();
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: ['settings', 'notifications'] });
+            queryClient.invalidateQueries({ queryKey: QUERY_KEYS.notificationSettings });
         }
     });
 
@@ -123,7 +126,7 @@ export function SettingsPage() {
                             onToggle={() => handleToggle('push_enabled')}
                         />
                         <SettingsItem
-                            icon={<div className="size-5 bg-[#FEE500] flex items-center justify-center text-[10px] font-semibold text-[#3C1E1E]" style={{ borderRadius: '6px' }}>K</div>}
+                            icon={<div className="size-5 bg-kakao-yellow flex items-center justify-center text-[10px] font-semibold text-kakao-brown" style={{ borderRadius: cssVars.radiusSm }}>K</div>}
                             title="카카오톡 알림"
                             type="toggle"
                             isToggled={settings?.kakao_enabled}

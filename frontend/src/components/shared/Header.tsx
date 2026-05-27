@@ -5,6 +5,9 @@ import { NotificationModal } from './NotificationModal';
 import { UserProfileModal } from './UserProfileModal';
 import { usePWAInstall } from '@/lib/usePWAInstall';
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { effects } from '@/styles/tokens';
 
 export function Header() {
     const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -12,9 +15,9 @@ export function Header() {
     const { isInstallable, isInstalled, isIOS, installPWA } = usePWAInstall();
 
     const { data } = useQuery({
-        queryKey: ['notifications'],
+        queryKey: QUERY_KEYS.notifications,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/notifications/`);
+            const response = await apiFetch('/notifications/');
             if (!response.ok) throw new Error('알림 로딩 실패');
             return response.json();
         },
@@ -28,7 +31,7 @@ export function Header() {
     return (
         <>
             <header className="flex items-center bg-slate-50 p-4 justify-between sticky top-0 z-40 border-b border-slate-100"
-                style={{ backgroundColor: 'oklch(0.98 0.005 255 / 0.85)', backdropFilter: 'blur(12px)' }}
+                style={effects.headerFrosted}
             >
                 <Link to="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
                     style={{ borderRadius: 'var(--radius-sm)' }}

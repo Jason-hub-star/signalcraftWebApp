@@ -6,6 +6,7 @@ import { ProfileHeader } from './ProfileHeader';
 import { MenuItem } from './MenuItem';
 import { SubscriptionDetail } from './SubscriptionDetail';
 import { AppSettings } from './AppSettings';
+import { classTokens } from '@/styles/tokens';
 
 interface UserProfileModalProps {
     isOpen: boolean;
@@ -23,10 +24,10 @@ export function UserProfileModal({ isOpen, onClose }: UserProfileModalProps) {
     };
 
     const mainItems = [
-        { id: 'account', label: '계정 설정', icon: Settings, color: 'text-slate-400 bg-slate-50' },
-        { id: 'subscription', label: '구독 관리', icon: CreditCard, color: 'text-signal-blue bg-blue-50', onClick: () => setView('subscription') },
-        { id: 'security', label: '보안 및 인증', icon: ShieldCheck, color: 'text-emerald-500 bg-emerald-50', onClick: () => setView('security') },
-        { id: 'appearance', label: '화면 테마', icon: Moon, color: 'text-slate-400 bg-slate-50', right: '라이트', onClick: () => setView('appearance') },
+        { id: 'account', label: '계정 설정', icon: Settings, color: classTokens.profileMenu.account },
+        { id: 'subscription', label: '구독 관리', icon: CreditCard, color: classTokens.profileMenu.subscription, onClick: () => setView('subscription') },
+        { id: 'security', label: '보안 및 인증', icon: ShieldCheck, color: classTokens.profileMenu.security, onClick: () => setView('security') },
+        { id: 'appearance', label: '화면 테마', icon: Moon, color: classTokens.profileMenu.appearance, right: '라이트', onClick: () => setView('appearance') },
     ];
 
     return (

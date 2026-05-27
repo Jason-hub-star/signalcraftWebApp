@@ -8,6 +8,9 @@ import { MachineDetailModal } from '../dashboard/MachineDetailModal';
 import { MachineFilters, FilterType } from './MachineFilters';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../../lib/utils';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { chartTokens, classTokens, effects } from '@/styles/tokens';
 
 export function MachinePage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -17,9 +20,9 @@ export function MachinePage() {
     const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
 
     const { data, isPending, error } = useQuery<{ machines: Machine[] }>({
-        queryKey: ['machines'],
+        queryKey: QUERY_KEYS.machines,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/machines/`);
+            const response = await apiFetch('/machines/');
             if (!response.ok) throw new Error('설비 목록을 불러오는데 실패했습니다.');
             return response.json();
         },
@@ -59,7 +62,7 @@ export function MachinePage() {
 
             <main className="flex-1 overflow-y-auto">
                 <div className="sticky top-0 z-30 pt-2 pb-2 transition-all border-b border-slate-100"
-                    style={{ backgroundColor: 'oklch(0.98 0.005 255 / 0.92)', backdropFilter: 'blur(12px)' }}
+                    style={effects.stickyFrosted}
                 >
                     {/* Search Bar */}
                     <div className="px-4 sm:px-6 py-2">
@@ -161,7 +164,7 @@ export function MachinePage() {
                                 style={{ borderRadius: 'var(--radius-lg)' }}
                             >
                                 <div className="absolute inset-0 opacity-20 pointer-events-none">
-                                    <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(#CBD5E1 1px, transparent 1px)', backgroundSize: '32px 32px' }} />
+                                    <div className="absolute inset-0" style={{ backgroundImage: `radial-gradient(${chartTokens.gridMajor} 1px, transparent 1px)`, backgroundSize: '32px 32px' }} />
                                 </div>
 
                                 {/* Map Controls */}
@@ -191,9 +194,7 @@ export function MachinePage() {
                                             <div className="relative flex flex-col items-center">
                                                 <div className={cn(
                                                     "size-10 flex items-center justify-center shadow-lg transition-transform group-hover:scale-110",
-                                                    machine.status === 'running' ? "bg-emerald-500 text-white" :
-                                                        machine.status === 'warning' ? "bg-amber-500 text-white" :
-                                                            "bg-rose-500 text-white"
+                                                    classTokens.machineStatus[machine.status].pin
                                                 )} style={{ borderRadius: 'var(--radius-sm)' }}>
                                                     <MapPin size={20} />
                                                 </div>

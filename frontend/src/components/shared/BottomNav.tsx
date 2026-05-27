@@ -2,6 +2,7 @@ import { LayoutDashboard, Zap, Settings, BarChart3 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { classTokens } from '@/styles/tokens';
 
 export function BottomNav() {
     const location = useLocation();
@@ -33,7 +34,7 @@ export function BottomNav() {
                                 whileTap={{ scale: 0.9 }}
                                 className={cn(
                                     "relative z-10 flex flex-col items-center gap-1",
-                                    isActive ? "text-signal-blue" : "text-slate-400"
+                                    isActive ? classTokens.bottomNav.active : classTokens.bottomNav.inactive
                                 )}
                             >
                                 <motion.div
@@ -58,7 +59,7 @@ export function BottomNav() {
                             {isActive && (
                                 <motion.div
                                     layoutId="activeTab"
-                                    className="absolute inset-x-2 inset-y-2 bg-signal-blue/5 z-0"
+                                    className={cn("absolute inset-x-2 inset-y-2 z-0", classTokens.bottomNav.activeBg)}
                                     style={{ borderRadius: 'var(--radius-md)' }}
                                     transition={{
                                         type: "spring",

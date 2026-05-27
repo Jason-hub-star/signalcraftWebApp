@@ -1,5 +1,6 @@
 import React from 'react';
 import { cn } from '../../lib/utils';
+import { classTokens } from '@/styles/tokens';
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
     children: React.ReactNode;
@@ -9,7 +10,8 @@ export function Card({ children, className, ...props }: CardProps) {
     return (
         <div
             className={cn(
-                "glass-card p-6 bg-white",
+                "glass-card p-6",
+                classTokens.bg.surface,
                 className
             )}
             {...props}
@@ -24,7 +26,7 @@ export function CardHeader({ children, className }: CardProps) {
 }
 
 export function CardTitle({ children, className }: CardProps) {
-    return <h3 className={cn("text-slate-900", className)}>{children}</h3>;
+    return <h3 className={cn(classTokens.text.primary, className)}>{children}</h3>;
 }
 
 export function CardContent({ children, className }: CardProps) {

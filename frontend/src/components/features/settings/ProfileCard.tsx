@@ -1,6 +1,8 @@
 import { User } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
 
 interface UserProfile {
     user: {
@@ -14,9 +16,9 @@ interface UserProfile {
 
 export function ProfileCard() {
     const { data: profile, isPending } = useQuery<UserProfile>({
-        queryKey: ['user', 'profile'],
+        queryKey: QUERY_KEYS.userProfile,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/shared/user-profile/me`);
+            const response = await apiFetch('/shared/user-profile/me');
             if (!response.ok) {
                 throw new Error('프로필 정보를 불러오는데 실패했습니다.');
             }

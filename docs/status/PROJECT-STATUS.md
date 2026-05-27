@@ -1,6 +1,6 @@
 # Project Status
 
-Last Updated: 2026-03-16
+Last Updated: 2026-05-27
 
 ## Current Phase
 - **Phase 6: Notifications** — 진행 중
@@ -21,6 +21,7 @@ Last Updated: 2026-03-16
 | 다크 모드 | 미구현 | PRD 명시 |
 | QR 기기 등록 | 대기 | 하드웨어 준비 후 |
 | Frontend E2E 자동화 | 미완료 | Playwright 예정 |
+| 개발 목업 API 모드 | 완료 | FE 개발 모드에서 백엔드 없이 위험/주의/정상 목업 데이터 표시 |
 
 ## Deployment
 - Frontend: Vercel (signalcraft-web-app.vercel.app)
@@ -39,6 +40,17 @@ Last Updated: 2026-03-16
 | `notifications` | 6 | alert/report/maintenance 알림 |
 | `maintenance_logs` | 12 | CLEANING/CHECK/PART_REPLACE 이력 |
 | `notification_settings` | 1 | 데모 사용자 설정 |
+
+## Recent Changes (2026-05-27)
+1. **Frontend 개발 목업 API 전환 + 토큰 공유화 보강**
+   - `apiFetch` 단일 게이트웨이 추가, 개발 모드 기본 목업 API 사용
+   - `VITE_USE_MOCK_API=true` 설정 시 Vercel preview/production build에서도 목업 API 강제 사용 가능
+   - 설비 상태 목업: DANGER 1건, WARNING 1건, GOOD 1건
+   - `QUERY_KEYS` 팩토리 추가 및 기존 query key/invalidation 분산 제거
+   - `styles/tokens.ts` 추가, 차트/카카오/헤더/내보내기 색상 직접값과 핵심 UI class token을 공유 토큰으로 이동
+   - 상태/브랜드/차트 중심으로 설비 상태, HACCP, 이벤트, 정비 액션, 알림, 하단 네비, 프로필 메뉴 semantic class token 적용
+   - Recharts 초기 음수 크기 경고 제거를 위한 `useElementSize` 추가
+   - 검증: `npm run build`, Playwright `/dashboard`, `/machines`, `/report` smoke
 
 ## Recent Changes (2026-03-16)
 1. **Impeccable UI 디자인 시스템 적용** — 전 페이지/모달 대상 (36개 컴포넌트)

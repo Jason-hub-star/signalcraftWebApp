@@ -7,6 +7,8 @@
   --color-signal-mint: oklch(0.72 0.17 160);
   --color-signal-orange: oklch(0.75 0.17 60);
   --color-signal-red: oklch(0.63 0.22 25);
+  --color-kakao-yellow: #FEE500;
+  --color-kakao-brown: #3C1E1E;
 
   /* Blue-tinted Neutral Scale */
   --color-slate-50: oklch(0.98 0.005 255);

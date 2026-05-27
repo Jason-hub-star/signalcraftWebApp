@@ -2,6 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ChevronRight, Calendar, Search, Loader2 } from 'lucide-react';
 import { cn } from '../../../lib/utils';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { classTokens } from '@/styles/tokens';
 
 interface HistoryViewProps {
     deviceId: string | null;
@@ -16,12 +19,18 @@ interface DailyReport {
     haccp_status: string;
 }
 
+const getHaccpHistoryClass = (status: string) => {
+    if (status === 'PASS') return classTokens.haccpStatus.PASS.history;
+    if (status === 'WARNING') return classTokens.haccpStatus.WARNING.history;
+    return classTokens.haccpStatus.FAIL.history;
+};
+
 export function HistoryView({ deviceId, onSelectDate }: HistoryViewProps) {
     const { data: historyData, isLoading, error } = useQuery<{ reports: DailyReport[] }>({
-        queryKey: ['reports', 'history', deviceId],
+        queryKey: QUERY_KEYS.reportsHistory(deviceId),
         queryFn: async () => {
             if (!deviceId) return { reports: [] };
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/reports/?device_id=${deviceId}`);
+            const response = await apiFetch(`/reports/?device_id=${deviceId}`);
             if (!response.ok) throw new Error('히스토리 로드 실패');
             return response.json();
         },
@@ -75,11 +84,7 @@ export function HistoryView({ deviceId, onSelectDate }: HistoryViewProps) {
                             <div className="flex items-center gap-4">
                                 <div className={cn(
                                     "size-14 flex flex-col items-center justify-center font-semibold",
-                                    report.haccp_status === 'PASS'
-                                        ? "bg-emerald-50 text-emerald-600"
-                                        : report.haccp_status === 'WARNING'
-                                            ? "bg-amber-50 text-amber-600"
-                                            : "bg-rose-50 text-rose-600"
+                                    getHaccpHistoryClass(report.haccp_status)
                                 )} style={{ borderRadius: 'var(--radius-md)' }}>
                                     <span className="text-[10px] uppercase mb-0.5">{report.health_score}%</span>
                                     <Calendar size={20} />

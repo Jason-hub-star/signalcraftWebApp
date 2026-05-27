@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Activity, Volume2, History, FileText } from 'lucide-react';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { type Machine } from '../MachineCard';
 import { cn } from '../../../../lib/utils';
 import { AnalysisTab } from './AnalysisTab';
 import { SmartLogTab } from './SmartLogTab';
 import { MaintenanceTab } from './MaintenanceTab';
 import { type MachineDetailModalProps, type TabType, type MaintenanceView } from './types';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { classTokens } from '@/styles/tokens';
 
 export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'analysis' }: MachineDetailModalProps) {
     const queryClient = useQueryClient();
@@ -27,7 +29,7 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
                 urgency: urgency,
                 visit_date: visitDate || null
             };
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/dashboard/machine-detail/service-tickets`, {
+            const response = await apiFetch('/dashboard/machine-detail/service-tickets', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(body)
@@ -37,7 +39,9 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
         },
         onSuccess: () => {
             setMaintenanceView('success');
-            queryClient.invalidateQueries({ queryKey: ['machine-maintenance'] });
+            if (machine?.id) {
+                queryClient.invalidateQueries({ queryKey: QUERY_KEYS.maintenanceHistory(machine.id) });
+            }
         }
     });
 
@@ -65,13 +69,7 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
         submitTicket();
     };
 
-    const getStatusTheme = (status: Machine['status']) => {
-        if (status === 'running') return { color: 'text-signal-mint', bg: 'bg-signal-mint/10', border: 'border-signal-mint/20' };
-        if (status === 'warning') return { color: 'text-signal-orange', bg: 'bg-signal-orange/10', border: 'border-signal-orange/20' };
-        return { color: 'text-signal-red', bg: 'bg-signal-red/10', border: 'border-signal-red/20' };
-    };
-
-    const theme = getStatusTheme(machine.status);
+    const theme = classTokens.machineStatus[machine.status];
 
     return (
         <AnimatePresence>
@@ -104,7 +102,7 @@ export function MachineDetailModal({ machine, isOpen, onClose, initialView = 'an
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-4">
                                     <div className={cn("p-3", theme.bg)} style={{ borderRadius: 'var(--radius-md)' }}>
-                                        <Volume2 className={cn("size-6", theme.color)} />
+                                        <Volume2 className={cn("size-6", theme.icon)} />
                                     </div>
                                     <div>
                                         <h2 className="text-xl font-bold text-slate-900 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>{machine.name}</h2>

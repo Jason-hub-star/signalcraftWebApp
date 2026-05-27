@@ -4,6 +4,7 @@ import { Card } from '../../ui/Card';
 import { Badge } from '../../ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../../lib/utils';
+import { classTokens, cssVars } from '@/styles/tokens';
 
 export interface Machine {
     id: string;
@@ -40,14 +41,15 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
     };
 
     const PredictionIcon = machine.status === 'warning' ? AlertTriangle : machine.id.includes('2') ? CalendarClock : Brain;
+    const isMachineWarning = machine.status === 'warning';
 
     const getMachineIcon = (type: string) => {
         const t = type?.toUpperCase() || '';
-        if (t.includes('FREEZER') || t.includes('BLAST')) return <Snowflake className="size-9 sm:size-10 text-blue-500" />;
-        if (t.includes('REFRIGERATOR')) return <Thermometer className="size-9 sm:size-10 text-cyan-500" />;
-        if (t.includes('SHOWCASE')) return <Wind className="size-9 sm:size-10 text-indigo-500" />;
-        if (t.includes('COLD') || t.includes('STORAGE')) return <Box className="size-9 sm:size-10 text-slate-500" />;
-        return <Snowflake className="size-9 sm:size-10 text-blue-500" />;
+        if (t.includes('FREEZER') || t.includes('BLAST')) return <Snowflake className={cn("size-9 sm:size-10", classTokens.machineType.freezer)} />;
+        if (t.includes('REFRIGERATOR')) return <Thermometer className={cn("size-9 sm:size-10", classTokens.machineType.refrigerator)} />;
+        if (t.includes('SHOWCASE')) return <Wind className={cn("size-9 sm:size-10", classTokens.machineType.showcase)} />;
+        if (t.includes('COLD') || t.includes('STORAGE')) return <Box className={cn("size-9 sm:size-10", classTokens.machineType.storage)} />;
+        return <Snowflake className={cn("size-9 sm:size-10", classTokens.machineType.freezer)} />;
     };
 
     return (
@@ -58,14 +60,14 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
             className="px-2 sm:px-4 py-1.5 cursor-pointer relative"
         >
             <Card
-                className="p-0 overflow-hidden border-slate-100 transition-shadow group relative"
-                style={{ transitionDuration: 'var(--duration-normal)', transitionTimingFunction: 'var(--ease-out-quart)' }}
+                className={cn("p-0 overflow-hidden transition-shadow group relative", classTokens.border.subtle)}
+                style={{ transitionDuration: cssVars.durationNormal, transitionTimingFunction: cssVars.easeOutQuart }}
                 onClick={() => onClick?.(machine)}
             >
                 <div className="p-4 sm:p-5 flex gap-4 sm:gap-5 relative z-10">
                     <div
-                        className="w-20 h-20 sm:w-22 sm:h-22 shrink-0 bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-100/50 overflow-hidden flex items-center justify-center"
-                        style={{ borderRadius: 'var(--radius-md)' }}
+                        className={cn("w-20 h-20 sm:w-22 sm:h-22 shrink-0 bg-gradient-to-br border overflow-hidden flex items-center justify-center", classTokens.gradient.machineIcon, classTokens.border.infoSoft)}
+                        style={{ borderRadius: cssVars.radiusMd }}
                     >
                         {getMachineIcon(machine.type)}
                     </div>
@@ -74,12 +76,12 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                         <div className="flex justify-between items-start mb-2">
                             <div>
                                 <h4
-                                    className="text-[16px] sm:text-[17px] font-bold text-slate-900 leading-tight tracking-tight mb-0.5 group-hover:text-signal-blue transition-colors truncate"
-                                    style={{ fontFamily: 'var(--font-heading)', transitionDuration: 'var(--duration-normal)' }}
+                                    className={cn("text-[16px] sm:text-[17px] font-bold leading-tight tracking-tight mb-0.5 group-hover:text-signal-blue transition-colors truncate", classTokens.text.primary)}
+                                    style={{ fontFamily: cssVars.fontHeading, transitionDuration: cssVars.durationNormal }}
                                 >
                                     {machine.name}
                                 </h4>
-                                <p className="text-[12px] sm:text-[13px] text-slate-400 font-medium tracking-tight truncate">
+                                <p className={cn("text-[12px] sm:text-[13px] font-medium tracking-tight truncate", classTokens.text.subtle)}>
                                     {machine.location}
                                 </p>
                             </div>
@@ -89,8 +91,8 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                                         e.stopPropagation();
                                         setIsMenuOpen(!isMenuOpen);
                                     }}
-                                    className="text-slate-300 p-2 hover:bg-slate-50 transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
-                                    style={{ borderRadius: 'var(--radius-md)' }}
+                                    className={cn("p-2 transition-colors active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2", classTokens.text.disabled, classTokens.hover.subtle)}
+                                    style={{ borderRadius: cssVars.radiusMd }}
                                     aria-label="설비 메뉴 열기"
                                 >
                                     <MoreHorizontal size={20} />
@@ -103,8 +105,8 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                                             animate={{ opacity: 1, scale: 1, y: 0 }}
                                             exit={{ opacity: 0, scale: 0.95, y: -8 }}
                                             transition={{ duration: 0.15, ease: [0.25, 1, 0.5, 1] }}
-                                            className="absolute right-0 top-12 w-32 bg-white shadow-lg border border-slate-100 py-1.5 z-50 overflow-hidden"
-                                            style={{ borderRadius: 'var(--radius-md)' }}
+                                            className={cn("absolute right-0 top-12 w-32 shadow-lg border py-1.5 z-50 overflow-hidden", classTokens.bg.surface, classTokens.border.subtle)}
+                                            style={{ borderRadius: cssVars.radiusMd }}
                                         >
                                             <button
                                                 onClick={(e) => {
@@ -112,7 +114,7 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                                                     onManage?.(machine);
                                                     setIsMenuOpen(false);
                                                 }}
-                                                className="w-full px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors"
+                                                className={cn("w-full px-4 py-2.5 flex items-center gap-2 text-sm font-medium transition-colors", classTokens.text.secondary, classTokens.hover.subtle)}
                                             >
                                                 <Settings2 size={16} />
                                                 관리
@@ -123,7 +125,7 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                                                     onDelete?.(machine.id);
                                                     setIsMenuOpen(false);
                                                 }}
-                                                className="w-full px-4 py-2.5 flex items-center gap-2 text-sm font-medium text-rose-500 hover:bg-rose-50 transition-colors"
+                                                className={cn("w-full px-4 py-2.5 flex items-center gap-2 text-sm font-medium transition-colors", classTokens.text.dangerIcon, classTokens.hover.dangerSoft)}
                                             >
                                                 <Trash2 size={16} />
                                                 삭제
@@ -139,14 +141,14 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
                                 {getStatusLabel(machine.status)}
                             </Badge>
 
-                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-100"
-                                style={{ borderRadius: 'var(--radius-sm)' }}
+                            <div className={cn("flex items-center gap-1.5 px-3 py-1.5 border", classTokens.bg.subtle, classTokens.border.subtle)}
+                                style={{ borderRadius: cssVars.radiusSm }}
                             >
                                 <Zap className={cn(
                                     "size-3.5",
                                     machine.health > 90 ? "text-signal-mint" : "text-signal-orange"
                                 )} />
-                                <span className="text-[12px] font-semibold text-slate-600">
+                                <span className={cn("text-[12px] font-semibold", classTokens.text.secondary)}>
                                     {machine.health}%
                                 </span>
                             </div>
@@ -156,17 +158,18 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
 
                 <div
                     className={cn(
-                        "px-4 sm:px-5 py-3 sm:py-3.5 flex items-center gap-3 border-t border-slate-100",
-                        machine.status === 'warning' ? "bg-red-50/50 text-signal-red" : "bg-slate-50/50 text-slate-600"
+                        "px-4 sm:px-5 py-3 sm:py-3.5 flex items-center gap-3 border-t",
+                        classTokens.border.subtle,
+                        isMachineWarning ? classTokens.machinePrediction.danger : classTokens.machinePrediction.neutral
                     )}
                 >
                     <div className={cn(
                         "p-2",
-                        machine.status === 'warning' ? "bg-signal-red/10" : "bg-signal-blue/10"
-                    )} style={{ borderRadius: 'var(--radius-sm)' }}>
+                        isMachineWarning ? classTokens.machinePrediction.dangerIconBg : classTokens.machinePrediction.neutralIconBg
+                    )} style={{ borderRadius: cssVars.radiusSm }}>
                         <PredictionIcon className={cn(
                             "size-4",
-                            machine.status === 'warning' ? "text-signal-red" : "text-signal-blue"
+                            isMachineWarning ? classTokens.machinePrediction.dangerIcon : classTokens.machinePrediction.neutralIcon
                         )} />
                     </div>
                     <p className="text-[13px] font-medium tracking-tight leading-snug">

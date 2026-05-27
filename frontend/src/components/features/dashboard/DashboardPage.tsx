@@ -4,6 +4,8 @@ import { BottomNav } from '../../shared/BottomNav';
 import { StatusHero } from './StatusHero';
 import { QuickActions } from './QuickActions';
 import { MachineList } from './MachineList';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
 
 interface UserProfile {
     user: {
@@ -19,18 +21,18 @@ interface DashboardSummary {
 
 export function DashboardPage() {
     const { data: profile } = useQuery<UserProfile>({
-        queryKey: ['user', 'profile'],
+        queryKey: QUERY_KEYS.userProfile,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/shared/user-profile/me`);
+            const response = await apiFetch('/shared/user-profile/me');
             if (!response.ok) throw new Error('프로필 로딩 실패');
             return response.json();
         },
     });
 
     const { data: summary, isLoading: isSummaryLoading } = useQuery<DashboardSummary>({
-        queryKey: ['dashboard', 'summary'],
+        queryKey: QUERY_KEYS.dashboardSummary,
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/dashboard/summary`);
+            const response = await apiFetch('/dashboard/summary');
             if (!response.ok) throw new Error('요약 정보 로딩 실패');
             return response.json();
         },

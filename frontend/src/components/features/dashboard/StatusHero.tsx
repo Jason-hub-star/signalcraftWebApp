@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { CheckCircle2, AlertTriangle, AlertCircle, Loader2 } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import { AIInsightModal } from '../reports/AIInsightModal';
+import { classTokens, cssVars } from '@/styles/tokens';
+import { cn } from '@/lib/utils';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0, y: 10 },
@@ -46,7 +48,7 @@ export function StatusHero({ summary, isLoading }: StatusHeroProps) {
             return {
                 title: "설비 상태를\n확인하는 중입니다",
                 subtitle: "잠시만 기다려 주세요...",
-                color: "from-slate-400 to-slate-500",
+                color: classTokens.gradient.loading,
                 icon: <Loader2 className="size-10 text-white animate-spin" />,
                 isInitial: true
             };
@@ -55,7 +57,7 @@ export function StatusHero({ summary, isLoading }: StatusHeroProps) {
             return {
                 title: "즉시 점검이 필요한\n설비가 있어요",
                 subtitle: `위험 ${summary?.DANGER}건 / 주의 ${summary?.WARNING}건 감지`,
-                color: "from-rose-500 to-rose-600",
+                color: classTokens.gradient.danger,
                 icon: <AlertCircle className="size-10 text-white" />
             };
         }
@@ -63,14 +65,14 @@ export function StatusHero({ summary, isLoading }: StatusHeroProps) {
             return {
                 title: "설비 상태를\n확인해 주세요",
                 subtitle: `주의 ${summary?.WARNING}건이 발생했어요`,
-                color: "from-amber-400 to-amber-500",
+                color: classTokens.gradient.warning,
                 icon: <AlertTriangle className="size-10 text-white" />
             };
         }
         return {
             title: "설비가 안전하게\n보호되고 있어요",
             subtitle: "현재 모든 시스템이 정상입니다",
-            color: "from-signal-blue to-blue-600",
+            color: classTokens.gradient.healthy,
             icon: <CheckCircle2 className="size-10 text-white" />
         };
     };
@@ -88,10 +90,10 @@ export function StatusHero({ summary, isLoading }: StatusHeroProps) {
                 <div
                     className={`w-full bg-linear-to-br ${status.color} text-white flex flex-col items-center justify-center text-center relative overflow-hidden transition-colors`}
                     style={{
-                        borderRadius: 'var(--radius-lg)',
+                        borderRadius: cssVars.radiusLg,
                         padding: 'var(--space-2xl) var(--space-lg)',
                         transitionDuration: 'var(--duration-slow)',
-                        transitionTimingFunction: 'var(--ease-out-quart)',
+                        transitionTimingFunction: cssVars.easeOutQuart,
                     }}
                 >
                     <div className="relative z-10 flex flex-col items-center gap-5">
@@ -123,9 +125,9 @@ export function StatusHero({ summary, isLoading }: StatusHeroProps) {
                                 whileTap={{ scale: 0.97 }}
                                 onClick={() => setIsInsightOpen(true)}
                                 className="flex items-center gap-2 bg-white/12 px-5 py-2.5 border border-white/10 transition-colors hover:bg-white/18 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 focus-visible:ring-offset-2 focus-visible:ring-offset-transparent"
-                                style={{ borderRadius: 'var(--radius-lg)' }}
+                                style={{ borderRadius: cssVars.radiusLg }}
                             >
-                                <span className="size-2 bg-emerald-400 rounded-full" />
+                                <span className={cn("size-2 rounded-full", classTokens.bg.successDot)} />
                                 <span className="text-xs font-semibold uppercase tracking-wider text-white/90">AI Live Monitoring</span>
                             </motion.button>
                         )}

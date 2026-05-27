@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Zap, Brain } from 'lucide-react';
 import { cn } from '../../../lib/utils';
+import { chartTokens } from '@/styles/tokens';
 
 interface AIInsightModalProps {
     isOpen: boolean;
@@ -130,7 +131,7 @@ export function AIInsightModal({ isOpen, onClose }: AIInsightModalProps) {
                                                 <path
                                                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                                     fill="none"
-                                                    stroke="#e2e8f0"
+                                                    stroke={chartTokens.gridMajor}
                                                     strokeWidth="3"
                                                 />
                                                 <motion.path
@@ -139,7 +140,7 @@ export function AIInsightModal({ isOpen, onClose }: AIInsightModalProps) {
                                                     transition={{ duration: 1, ease: "easeOut" }}
                                                     d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                                                     fill="none"
-                                                    stroke="#3b82f6"
+                                                    stroke={chartTokens.primaryStroke}
                                                     strokeWidth="3"
                                                     strokeLinecap="round"
                                                 />

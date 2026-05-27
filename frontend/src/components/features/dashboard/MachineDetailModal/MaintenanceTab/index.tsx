@@ -7,6 +7,9 @@ import { cn } from '../../../../../lib/utils';
 import { type MaintenanceView } from '../types';
 import { type Machine } from '../../MachineCard';
 import { MaintenanceRecordModal } from './MaintenanceRecordModal';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { classTokens } from '@/styles/tokens';
 
 interface MaintenanceTabProps {
     machine: Machine;
@@ -38,9 +41,9 @@ export function MaintenanceTab({
     const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
 
     const { data: history, isPending } = useQuery<any[]>({
-        queryKey: ['maintenance-history', machine.id],
+        queryKey: QUERY_KEYS.maintenanceHistory(machine.id),
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/dashboard/machine-detail/maintenance?machine_id=${machine.id}`);
+            const response = await apiFetch(`/dashboard/machine-detail/maintenance?machine_id=${machine.id}`);
             if (!response.ok) throw new Error('유지보수 이력을 불러오는데 실패했습니다.');
             return response.json();
         },
@@ -53,6 +56,12 @@ export function MaintenanceTab({
             case 'PART_REPLACE': return '부품 교체';
             default: return type;
         }
+    };
+
+    const getActionBadgeClass = (type: string) => {
+        if (type === 'CLEANING') return classTokens.maintenanceAction.CLEANING.badge;
+        if (type === 'PART_REPLACE') return classTokens.maintenanceAction.PART_REPLACE.badge;
+        return classTokens.maintenanceAction.CHECK.badge;
     };
 
     return (
@@ -131,9 +140,7 @@ export function MaintenanceTab({
                                                     </span>
                                                     <span className={cn(
                                                         "text-[10px] px-2 py-0.5 rounded-full font-medium",
-                                                        log.action_type === 'CLEANING' ? "bg-blue-50 text-blue-500" :
-                                                            log.action_type === 'PART_REPLACE' ? "bg-emerald-500 text-white" :
-                                                                "bg-amber-500 text-white"
+                                                        getActionBadgeClass(log.action_type)
                                                     )}>
                                                         {getActionTypeLabel(log.action_type)}
                                                     </span>

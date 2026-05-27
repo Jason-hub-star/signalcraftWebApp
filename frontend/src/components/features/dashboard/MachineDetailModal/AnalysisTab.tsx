@@ -1,9 +1,13 @@
 import { motion } from 'framer-motion';
 import { Activity, Volume2, ShieldCheck, Zap, AlertCircle, Settings2, TrendingDown, Loader2 } from 'lucide-react';
-import { AreaChart, Area, XAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, XAxis, CartesianGrid, Tooltip } from 'recharts';
 import { useQuery } from '@tanstack/react-query';
 import { type Machine } from '../MachineCard';
 import { cn } from '../../../../lib/utils';
+import { apiFetch } from '@/lib/api';
+import { QUERY_KEYS } from '@/lib/queryKeys';
+import { chartTokens, classTokens, statusTokens } from '@/styles/tokens';
+import { useElementSize } from '@/lib/useElementSize';
 
 interface AnalysisTabProps {
     machine: Machine;
@@ -11,10 +15,12 @@ interface AnalysisTabProps {
 }
 
 export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
+    const [forecastChartRef, forecastChartSize] = useElementSize<HTMLDivElement>();
+
     const { data: analysis, isPending, error } = useQuery({
-        queryKey: ['machine-analysis', machine.id],
+        queryKey: QUERY_KEYS.machineAnalysis(machine.id),
         queryFn: async () => {
-            const response = await fetch(`${import.meta.env.VITE_API_URL}/dashboard/machine-detail/analysis?machine_id=${machine.id}`);
+            const response = await apiFetch(`/dashboard/machine-detail/analysis?machine_id=${machine.id}`);
             if (!response.ok) throw new Error('분석 데이터를 불러오는데 실패했습니다.');
             return response.json();
         },
@@ -43,6 +49,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
     const health = report?.health_score ?? machine.health;
     const diagnostics = report?.diagnostics || { comp: 98, fan: 85, valve: 92 };
     const roi = report?.roi_data || { watt: 42.5, door_opens: 12 };
+    const machineStatusClass = classTokens.machineStatus[machine.status];
 
     const forecastData = forecast?.prediction_data ?
         (typeof forecast.prediction_data === 'string' ? JSON.parse(forecast.prediction_data) : forecast.prediction_data)
@@ -52,6 +59,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
             { time: '2일 뒤', value: Math.max(0, health - 12) },
             { time: '3일 뒤', value: Math.max(0, health - 20) },
         ];
+    const gaugeGradient = statusTokens[machine.status];
 
     return (
         <motion.div
@@ -71,8 +79,8 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                         <svg className="size-full" viewBox="0 0 240 240">
                             <defs>
                                 <linearGradient id="gaugeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                                    <stop offset="0%" stopColor={machine.status === 'running' ? '#3B82F6' : machine.status === 'warning' ? '#F59E0B' : '#EF4444'} />
-                                    <stop offset="100%" stopColor={machine.status === 'running' ? '#60A5FA' : machine.status === 'warning' ? '#FCD34D' : '#FCA5A5'} />
+                                    <stop offset="0%" stopColor={gaugeGradient.gradientStart} />
+                                    <stop offset="100%" stopColor={gaugeGradient.gradientEnd} />
                                 </linearGradient>
                             </defs>
 
@@ -83,14 +91,14 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                     <line
                                         key={i}
                                         x1="120" y1="20" x2="120" y2={isMajor ? "35" : "28"}
-                                        stroke={isMajor ? "#E2E8F0" : "#F1F5F9"}
+                                        stroke={isMajor ? chartTokens.gridMajor : chartTokens.grid}
                                         strokeWidth={isMajor ? "2" : "1"}
                                         transform={`rotate(${angle} 120 120)`}
                                     />
                                 );
                             })}
 
-                            <circle cx="120" cy="120" r="88" fill="none" stroke="#F8FAFC" strokeWidth="16" strokeLinecap="round" />
+                            <circle cx="120" cy="120" r="88" fill="none" stroke={chartTokens.surface} strokeWidth="16" strokeLinecap="round" />
 
                             <motion.circle
                                 cx="120" cy="120" r="88" fill="none" stroke="url(#gaugeGradient)"
@@ -102,7 +110,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                 transform="rotate(-90 120 120)"
                             />
 
-                            <circle cx="120" cy="120" r="70" fill="none" stroke="#F1F5F9" strokeWidth="1" strokeDasharray="4 4" />
+                            <circle cx="120" cy="120" r="70" fill="none" stroke={chartTokens.grid} strokeWidth="1" strokeDasharray="4 4" />
                         </svg>
 
                         <div className="absolute flex flex-col items-center">
@@ -121,15 +129,11 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                             </div>
                             <div className={cn(
                                 "flex items-center gap-1.5 px-3 py-1 mt-2 rounded-full text-[11px] font-medium",
-                                machine.status === 'running' ? "bg-blue-50 text-blue-600" :
-                                    machine.status === 'warning' ? "bg-amber-50 text-amber-600" :
-                                        "bg-rose-50 text-rose-600"
+                                machineStatusClass.badge
                             )}>
                                 <div className={cn(
                                     "size-1.5 rounded-full",
-                                    machine.status === 'running' ? "bg-blue-500" :
-                                        machine.status === 'warning' ? "bg-amber-500" :
-                                            "bg-rose-500"
+                                    machineStatusClass.dot
                                 )} />
                                 {machine.status === 'running' ? 'Optimal' : machine.status === 'warning' ? 'Check Required' : 'Critical'}
                             </div>
@@ -168,7 +172,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                     transition={{ duration: 0.8, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
                                     className={cn(
                                         "h-full rounded-full",
-                                        part.score > 90 ? "bg-signal-blue" : part.score > 80 ? "bg-signal-orange" : "bg-signal-red"
+                                        part.score > 90 ? classTokens.componentScore.good : part.score > 80 ? classTokens.componentScore.warning : classTokens.componentScore.danger
                                     )}
                                 />
                             </div>
@@ -226,54 +230,54 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                         72시간 고장 예보
                     </h3>
                     {health < 80 && (
-                        <div className="flex items-center gap-1.5 px-3 py-1 bg-rose-50 rounded-full">
-                            <span className="size-2 rounded-full bg-rose-500" />
-                            <span className="section-label text-rose-600 mb-0">점검 권장</span>
+                        <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full", classTokens.bg.dangerSoft)}>
+                            <span className={cn("size-2 rounded-full", classTokens.healthForecast.dangerDot)} />
+                            <span className={cn("section-label mb-0", classTokens.healthForecast.dangerText)}>점검 권장</span>
                         </div>
                     )}
                 </div>
 
                 <div className="p-6 bg-white border border-slate-100 shadow-card space-y-6" style={{ borderRadius: 'var(--radius-lg)' }}>
-                    <div className="h-[200px] w-full">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={forecastData}>
-                                <defs>
-                                    <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="#3B82F6" stopOpacity={0.1} />
-                                        <stop offset="95%" stopColor="#3B82F6" stopOpacity={0} />
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#F1F5F9" />
-                                <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: '#94A3B8', fontSize: 10, fontWeight: 500 }} />
-                                <Tooltip
-                                    content={({ active, payload }) => {
-                                        if (active && payload && payload.length) {
-                                            const data = payload[0].payload;
-                                            return (
-                                                <div className="bg-slate-900 text-white px-3 py-2 text-xs font-medium border border-slate-800 shadow-xl"
-                                                    style={{ borderRadius: 'var(--radius-sm)' }}
-                                                >
-                                                    <p className="opacity-60 mb-1">{data.time}</p>
-                                                    <p className="text-sm">예상 건강: {data.value}%</p>
-                                                </div>
-                                            );
-                                        }
-                                        return null;
-                                    }}
-                                />
-                                <Area type="monotone" dataKey="value" stroke="#3B82F6" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-                            </AreaChart>
-                        </ResponsiveContainer>
+                    <div ref={forecastChartRef} className="h-[200px] w-full">
+                        {forecastChartSize.width > 1 && forecastChartSize.height > 1 ? (
+                                <AreaChart data={forecastData} width={forecastChartSize.width} height={forecastChartSize.height}>
+                                    <defs>
+                                        <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor={chartTokens.primaryFill} stopOpacity={0.1} />
+                                            <stop offset="95%" stopColor={chartTokens.primaryFill} stopOpacity={0} />
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={chartTokens.grid} />
+                                    <XAxis dataKey="time" axisLine={false} tickLine={false} tick={{ fill: chartTokens.axisTick, fontSize: 10, fontWeight: 500 }} />
+                                    <Tooltip
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload.length) {
+                                                const data = payload[0].payload;
+                                                return (
+                                                    <div className="bg-slate-900 text-white px-3 py-2 text-xs font-medium border border-slate-800 shadow-xl"
+                                                        style={{ borderRadius: 'var(--radius-sm)' }}
+                                                    >
+                                                        <p className="opacity-60 mb-1">{data.time}</p>
+                                                        <p className="text-sm">예상 건강: {data.value}%</p>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    <Area type="monotone" dataKey="value" stroke={chartTokens.primaryStroke} strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
+                                </AreaChart>
+                        ) : null}
                     </div>
 
                     <div className={cn(
                         "flex items-center justify-between p-5 border",
-                        health < 80 ? "bg-rose-50 border-rose-100" : "bg-emerald-50 border-emerald-100"
+                        health < 80 ? classTokens.healthForecast.dangerCard : classTokens.healthForecast.healthyCard
                     )} style={{ borderRadius: 'var(--radius-md)' }}>
                         {forecast?.golden_time ? (
                             <div>
-                                <div className={cn("section-label mb-0.5", health < 80 ? "text-rose-400" : "text-emerald-400")}>고장 예상 시점</div>
-                                <div className={cn("text-2xl font-bold tracking-tighter", health < 80 ? "text-rose-600" : "text-emerald-600")}
+                                <div className={cn("section-label mb-0.5", health < 80 ? classTokens.healthForecast.dangerMuted : classTokens.healthForecast.healthyMuted)}>고장 예상 시점</div>
+                                <div className={cn("text-2xl font-bold tracking-tighter", health < 80 ? classTokens.healthForecast.dangerText : classTokens.healthForecast.healthyText)}
                                     style={{ fontFamily: 'var(--font-heading)' }}
                                 >
                                     {new Date(forecast.golden_time).toLocaleDateString()}
@@ -286,8 +290,8 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                             </div>
                         )}
                         <div className="text-right">
-                            <div className={cn("section-label mb-0.5", health < 80 ? "text-rose-400" : "text-emerald-400")}>예측 정확도</div>
-                            <div className={cn("text-sm font-semibold", health < 80 ? "text-rose-500" : "text-emerald-500")}>85% (매우 높음)</div>
+                            <div className={cn("section-label mb-0.5", health < 80 ? classTokens.healthForecast.dangerMuted : classTokens.healthForecast.healthyMuted)}>예측 정확도</div>
+                            <div className={cn("text-sm font-semibold", health < 80 ? classTokens.healthForecast.dangerSmall : classTokens.healthForecast.healthySmall)}>85% (매우 높음)</div>
                         </div>
                     </div>
                 </div>
