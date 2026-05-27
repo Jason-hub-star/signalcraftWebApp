@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Sparkles, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { AIInsightModal } from './AIInsightModal';
+import { mockScenario } from '@/lib/mockScenario';
 
 export function AIInsightCard() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [titleBeforeHighlight, titleAfterHighlight] = mockScenario.aiInsight.cardTitle.split(mockScenario.aiInsight.cardHighlight);
 
     return (
         <>
@@ -33,10 +35,12 @@ export function AIInsightCard() {
 
                     <div className="space-y-1">
                         <h3 className="text-xl font-bold text-white leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-                            오늘의 설비는 <span className="text-signal-blue">안정적</span>입니다.
+                            {titleBeforeHighlight}
+                            <span className="text-signal-blue">{mockScenario.aiInsight.cardHighlight}</span>
+                            {titleAfterHighlight}
                         </h3>
                         <p className="text-sm font-medium text-slate-400">
-                            특이사항 없음 • 효율 94% 달성
+                            {mockScenario.aiInsight.cardSubtitle}
                         </p>
                     </div>
                 </div>

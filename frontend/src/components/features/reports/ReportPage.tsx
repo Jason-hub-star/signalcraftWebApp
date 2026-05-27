@@ -15,6 +15,7 @@ import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { chartTokens, classTokens, effects } from '@/styles/tokens';
 import { useElementSize } from '@/lib/useElementSize';
+import { mockScenario } from '@/lib/mockScenario';
 
 type ViewMode = 'report' | 'history';
 
@@ -68,6 +69,7 @@ export function ReportPage() {
     }, [machines, selectedDeviceId]);
 
     const selectedMachine = machines.find(m => m.id === selectedDeviceId);
+    const reportCopy = mockScenario.report;
 
     const { data: latestReport, isLoading: isReportLoading } = useQuery<DailyReport>({
         queryKey: QUERY_KEYS.reportsLatest(selectedDeviceId),
@@ -265,8 +267,7 @@ export function ReportPage() {
                                                     getHaccpStatusClass(latestReport.haccp_status).label
                                                 )}>상태 요약</h3>
                                                 <p className="text-xl font-bold text-slate-900 leading-tight" style={{ fontFamily: 'var(--font-heading)' }}>
-                                                    {latestReport.haccp_status === 'PASS' ? "설비 상태가 완벽했습니다." :
-                                                        latestReport.haccp_status === 'WARNING' ? "주의 단계의 징후가 포착되었습니다." : "정지 위험이 감지되었습니다."}
+                                                    {reportCopy.statusSummary[latestReport.haccp_status as keyof typeof reportCopy.statusSummary]}
                                                 </p>
                                                 <p className="text-sm text-slate-500 font-medium">{latestReport.ai_summary}</p>
                                             </div>
@@ -282,11 +283,11 @@ export function ReportPage() {
                                         </div>
                                         <div className="relative z-10 flex items-center justify-between">
                                             <div className="space-y-1">
-                                                <p className="section-label text-slate-400 mb-0">Energy Saving</p>
+                                                <p className="section-label text-slate-400 mb-0">{reportCopy.energy.label}</p>
                                                 <h4 className="text-xl font-bold italic" style={{ fontFamily: 'var(--font-heading)' }}>
-                                                    {latestReport.roi_data.saved > 0 ? `₩${latestReport.roi_data.saved.toLocaleString()} 아꼈어요!` : "에너지 효율 분석 중"}
+                                                    {latestReport.roi_data.saved > 0 ? reportCopy.energy.activeTitle(latestReport.roi_data.saved) : reportCopy.energy.inactiveTitle}
                                                 </h4>
-                                                <p className="text-sm text-slate-400 font-medium">에너지 최적화로 예상 비용 절감</p>
+                                                <p className="text-sm text-slate-400 font-medium">{reportCopy.energy.description}</p>
                                             </div>
                                             <div className="size-12 bg-white/10 flex items-center justify-center" style={{ borderRadius: 'var(--radius-md)' }}>
                                                 <Zap size={24} className="text-amber-400" />
@@ -304,14 +305,14 @@ export function ReportPage() {
                                             style={{ borderRadius: 'var(--radius-lg)' }}
                                         >
                                             <StatRow
-                                                label="총 가동 시간"
+                                                label={reportCopy.stats.runtimeLabel}
                                                 value={`${Math.floor(latestReport.total_runtime / 60)}시간 ${latestReport.total_runtime % 60}분`}
                                                 status="Normal"
                                                 progress={Math.min(100, (latestReport.total_runtime / 1440) * 100)}
                                             />
                                             <StatRow
-                                                label="사이클 횟수"
-                                                value={`${latestReport.cycle_count}회`}
+                                                label={reportCopy.stats.cycleLabel}
+                                                value={`${latestReport.cycle_count}${reportCopy.stats.cycleUnit}`}
                                                 status={latestReport.cycle_count > 20 ? "Warning" : "Optimal"}
                                                 progress={Math.min(100, (latestReport.cycle_count / 30) * 100)}
                                                 color={latestReport.cycle_count > 20 ? classTokens.statProgress.warning : classTokens.statProgress.healthy}

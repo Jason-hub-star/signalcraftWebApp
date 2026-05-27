@@ -3,66 +3,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, Zap, Brain } from 'lucide-react';
 import { cn } from '../../../lib/utils';
 import { chartTokens } from '@/styles/tokens';
+import { mockScenario } from '@/lib/mockScenario';
 
 interface AIInsightModalProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-type Period = 'daily' | 'weekly' | 'monthly';
+type Period = keyof typeof mockScenario.aiInsight.periodData;
 
 export function AIInsightModal({ isOpen, onClose }: AIInsightModalProps) {
     const [period, setPeriod] = useState<Period>('daily');
 
-    const periods = [
-        { id: 'daily', label: '일간' },
-        { id: 'weekly', label: '주간' },
-        { id: 'monthly', label: '월간' },
-    ];
-
-    const getInsightData = (p: Period) => {
-        switch (p) {
-            case 'daily':
-                return {
-                    score: 98,
-                    status: 'Excellent',
-                    summary: "모든 설비가 안정적으로 가동되었습니다.",
-                    metrics: [
-                        { label: '가동률', value: '94%', change: '+2%', isGood: true },
-                        { label: '에너지 효율', value: 'High', change: 'Optimal', isGood: true },
-                        { label: '이상 감지', value: '0건', change: '-1', isGood: true },
-                    ],
-                    timeline: [
-                        { time: '09:00', event: '가동 시작', type: 'info' },
-                        { time: '14:30', event: '피크 부하 감지 (정상 범위)', type: 'warning' },
-                        { time: '18:00', event: '안정 모드 전환', type: 'success' },
-                    ],
-                    aiAdvice: "현재 가동 패턴이 매우 이상적입니다. 내일도 이 패턴을 유지하면 약 5%의 추가 에너지 절감이 예상됩니다."
-                };
-            case 'weekly':
-                return {
-                    score: 92,
-                    status: 'Good',
-                    summary: "전반적으로 양호하나 화요일에 짧은 과부하가 있었습니다.",
-                    metrics: [
-                        { label: '평균 가동률', value: '88%', change: '-1%', isGood: false },
-                        { label: '누적 절감액', value: '₩45,200', change: '+12%', isGood: true },
-                        { label: '이상 감지', value: '2건', change: '+1', isGood: false },
-                    ],
-                    timeline: [
-                        { time: '월요일', event: '정기 점검 완료', type: 'success' },
-                        { time: '화요일', event: '냉동고 B 일시적 온도 상승', type: 'alert' },
-                        { time: '목요일', event: '펌프 진동 패턴 안정화', type: 'info' },
-                    ],
-                    aiAdvice: "화요일 오후 2시경 발생한 온도 상승은 도어 개방 빈도와 관련이 있습니다. 피크 타임 도어 관리에 유의해주세요."
-                };
-            case 'monthly':
-                return null;
-            default: return null;
-        }
-    };
-
-    const data = getInsightData(period);
+    const periods = mockScenario.aiInsight.periods;
+    const data = mockScenario.aiInsight.periodData[period];
 
     return (
         <AnimatePresence>

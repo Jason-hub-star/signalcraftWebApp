@@ -7,6 +7,7 @@ import { type Machine } from '../MachineCard';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { classTokens } from '@/styles/tokens';
+import { mockScenario } from '@/lib/mockScenario';
 
 interface SmartLogTabProps {
     machine: Machine;
@@ -21,6 +22,7 @@ export function SmartLogTab({ machine }: SmartLogTabProps) {
             return response.json();
         },
     });
+    const smartLogCopy = mockScenario.smartLog;
 
     return (
         <motion.div
@@ -34,15 +36,15 @@ export function SmartLogTab({ machine }: SmartLogTabProps) {
             {/* Smart Log Header */}
             <section className="p-6 bg-slate-900 text-white relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
                 <div className="relative z-10">
-                    <h3 className="font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>기계 가동 요약</h3>
+                    <h3 className="font-bold mb-4" style={{ fontFamily: 'var(--font-heading)' }}>{smartLogCopy.title}</h3>
                     <div className="grid grid-cols-2 gap-4">
                         <div className="p-4 bg-white/5 border border-white/10" style={{ borderRadius: 'var(--radius-md)' }}>
-                            <div className="section-label text-blue-300 mb-1">사용 시간</div>
+                            <div className="section-label text-blue-300 mb-1">{smartLogCopy.primaryMetricLabel}</div>
                             <div className="text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>{Math.floor(Math.random() * 20 + 4)}시간 {Math.floor(Math.random() * 60)}분</div>
                         </div>
                         <div className="p-4 bg-white/5 border border-white/10" style={{ borderRadius: 'var(--radius-md)' }}>
-                            <div className="section-label text-blue-300 mb-1">Defrost Cycles</div>
-                            <div className="text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>{Math.floor(Math.random() * 5 + 1)} Times</div>
+                            <div className="section-label text-blue-300 mb-1">{smartLogCopy.secondaryMetricLabel}</div>
+                            <div className="text-xl font-bold" style={{ fontFamily: 'var(--font-heading)' }}>{Math.floor(Math.random() * 5 + 1)} {smartLogCopy.secondaryMetricUnit}</div>
                         </div>
                     </div>
                 </div>

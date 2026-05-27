@@ -1,4 +1,5 @@
 import type { Machine } from '@/components/features/dashboard/MachineCard';
+import { mockScenario } from './mockScenario';
 
 type NotificationSettings = {
     push_enabled: boolean;
@@ -27,38 +28,7 @@ export const isMockApiEnabled = () => {
     return flag !== 'false';
 };
 
-const machines: Machine[] = [
-    {
-        id: 'freezer-a01',
-        name: '1층 급속 냉동고 A',
-        location: '성수점 제조실',
-        status: 'warning',
-        health: 62,
-        prediction: '압축기 진동과 온도 회복 지연이 감지되어 점검이 필요해요.',
-        imageUrl: '',
-        type: 'BLAST_FREEZER',
-    },
-    {
-        id: 'showcase-b02',
-        name: '매장 쇼케이스 B',
-        location: '성수점 판매존',
-        status: 'error',
-        health: 38,
-        prediction: '팬 모터 이상음과 냉기 순환 저하가 겹쳐 즉시 확인이 필요해요.',
-        imageUrl: '',
-        type: 'SHOWCASE',
-    },
-    {
-        id: 'coldroom-c03',
-        name: '후면 저온 창고 C',
-        location: '성수점 백룸',
-        status: 'running',
-        health: 91,
-        prediction: '현재 패턴은 안정적이에요. 필터 청소 주기만 유지해 주세요.',
-        imageUrl: '',
-        type: 'COLD_STORAGE',
-    },
-];
+const machines: Machine[] = mockScenario.machines;
 
 let notificationSettings: NotificationSettings = {
     push_enabled: true,
@@ -68,56 +38,17 @@ let notificationSettings: NotificationSettings = {
     push_token: 'dev-mock-token',
 };
 
-let notifications: MockNotification[] = [
-    {
-        id: 'notif-danger-showcase',
-        type: 'alert',
-        title: '쇼케이스 B 이상 감지',
-        message: '팬 모터 회전음이 기준치를 벗어났어요. 24시간 안에 점검을 권장합니다.',
-        isRead: false,
-        createdAt: isoHoursAgo(1),
-    },
-    {
-        id: 'notif-warning-freezer',
-        type: 'maintenance',
-        title: '급속 냉동고 A 점검 필요',
-        message: '압축기 진동 패턴이 주의 단계로 올라왔어요. 소모품 상태를 확인해 주세요.',
-        isRead: false,
-        createdAt: isoHoursAgo(4),
-    },
-    {
-        id: 'notif-report',
-        type: 'report',
-        title: '오늘의 AI 리포트 도착',
-        message: '3대 중 2대에서 이상 징후가 확인되었어요. 조치 우선순위를 확인해 주세요.',
-        isRead: true,
-        createdAt: isoDaysAgo(1),
-    },
-];
+let notifications: MockNotification[] = mockScenario.notifications.map((notification) => ({
+    ...notification,
+    createdAt: notification.createdDaysAgo
+        ? isoDaysAgo(notification.createdDaysAgo)
+        : isoHoursAgo(notification.createdHoursAgo || 1),
+}));
 
-let maintenanceHistory = [
-    {
-        id: 'mnt-001',
-        device_id: 'showcase-b02',
-        action_type: 'CHECK',
-        description: '팬 모터 베어링 소음 확인. 교체 전 임시 윤활 조치 완료.',
-        performed_at: isoDaysAgo(1),
-    },
-    {
-        id: 'mnt-002',
-        device_id: 'freezer-a01',
-        action_type: 'CLEANING',
-        description: '응축기 필터 청소 및 도어 패킹 밀착 상태 확인.',
-        performed_at: isoDaysAgo(3),
-    },
-    {
-        id: 'mnt-003',
-        device_id: 'coldroom-c03',
-        action_type: 'PART_REPLACE',
-        description: '온도 센서 예비 부품 교체 및 캘리브레이션 완료.',
-        performed_at: isoDaysAgo(8),
-    },
-];
+let maintenanceHistory = mockScenario.maintenanceHistory.map(({ performedDaysAgo, ...record }) => ({
+    ...record,
+    performed_at: isoDaysAgo(performedDaysAgo),
+}));
 
 const jsonResponse = (data: unknown, init?: ResponseInit) =>
     new Response(JSON.stringify(data), {
@@ -146,14 +77,14 @@ const reportForMachine = (machine: Machine, dayOffset = 0) => {
         id: `report-${machine.id}-${dayOffset}`,
         report_date: isoDaysAgo(dayOffset || 0),
         device_id: machine.id,
-        total_runtime: isDanger ? 1180 : 1320,
-        cycle_count: isDanger ? 31 : isWarning ? 24 : 16,
+        total_runtime: isDanger ? 1210 : isWarning ? 1295 : 1360,
+        cycle_count: isDanger ? 28 : isWarning ? 22 : 14,
         health_score: health,
-        roi_data: { saved: isDanger ? 0 : 8400, watt: isDanger ? 58.4 : 42.5, door_opens: isDanger ? 23 : 12 },
+        roi_data: { saved: isDanger ? 0 : 126000, watt: isDanger ? 74.8 : isWarning ? 61.2 : 48.6, door_opens: isDanger ? 57 : isWarning ? 76 : 91 },
         diagnostics: {
-            comp: isDanger ? 45 : isWarning ? 68 : 96,
-            fan: isDanger ? 38 : isWarning ? 72 : 92,
-            valve: isDanger ? 57 : isWarning ? 81 : 94,
+            comp: isDanger ? 42 : isWarning ? 67 : 95,
+            fan: isDanger ? 39 : isWarning ? 73 : 91,
+            valve: isDanger ? 54 : isWarning ? 80 : 93,
         },
         ai_summary: machine.prediction,
         haccp_status: isDanger ? 'FAIL' : isWarning ? 'WARNING' : 'PASS',
@@ -189,22 +120,22 @@ const logsForMachine = (machine: Machine) => [
         id: `log-${machine.id}-1`,
         occurred_at: isoHoursAgo(1),
         event_type: machine.status === 'error' ? 'OFF' : 'ON',
-        status: machine.status === 'error' ? '비정상 정지' : '가동 중',
-        details: machine.status === 'running' ? '정상 범위' : '이상음 기준치 초과',
+        status: machine.status === 'error' ? '위험 신호' : '센서 수집 중',
+        details: machine.status === 'running' ? '온도/진동/차압 정상 범위' : '온도 drift와 진동 RMS 기준치 초과',
     },
     {
         id: `log-${machine.id}-2`,
         occurred_at: isoHoursAgo(3),
         event_type: 'DEF',
-        status: '제상 사이클',
-        details: machine.status === 'running' ? '정상 종료' : '예상보다 긴 제상 시간',
+        status: '공정 배치 기록',
+        details: machine.status === 'running' ? '배치 종료 후 품질 지표 정상' : '가시광 조사/배기 조건 재확인 필요',
     },
     {
         id: `log-${machine.id}-3`,
         occurred_at: isoHoursAgo(6),
         event_type: 'ON',
-        status: '운전 재개',
-        details: '온도 회복 추적 중',
+        status: '센서 동기화',
+        details: '온도, 진동, VOC, 차압 데이터 수집 재개',
     },
 ];
 
@@ -218,15 +149,15 @@ export async function mockApiFetch(path: string, init?: RequestInit): Promise<Re
     }
 
     if (url.pathname === '/dashboard/summary') {
-        return jsonResponse({ GOOD: 1, WARNING: 1, DANGER: 1 });
+        return jsonResponse(mockScenario.dashboardSummary);
     }
 
     if (url.pathname === '/shared/user-profile/me') {
         return jsonResponse({
             user: {
-                email: 'signal_boss@example.com',
-                full_name: '시그널 사장님',
-                role: '매장 관리자',
+                email: mockScenario.userProfile.email,
+                full_name: mockScenario.userProfile.full_name,
+                role: mockScenario.userProfile.role,
             },
             device_count: machines.length,
             plan: 'PRO',

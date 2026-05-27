@@ -1,4 +1,5 @@
 import { User, X } from 'lucide-react';
+import { mockScenario } from '@/lib/mockScenario';
 
 interface ProfileHeaderProps {
     onClose: () => void;
@@ -15,10 +16,10 @@ export function ProfileHeader({ onClose }: ProfileHeaderProps) {
                 </div>
                 <div>
                     <div className="flex items-center gap-2">
-                        <h3 className="text-2xl font-bold text-slate-900 tracking-tighter" style={{ fontFamily: 'var(--font-heading)' }}>시그널 사장님</h3>
+                        <h3 className="text-2xl font-bold text-slate-900 tracking-tighter" style={{ fontFamily: 'var(--font-heading)' }}>{mockScenario.userProfile.full_name}</h3>
                         <span className="px-2 py-0.5 bg-signal-blue text-white text-[10px] font-semibold rounded-full uppercase">PRO</span>
                     </div>
-                    <p className="text-sm text-slate-400 font-medium">signal_boss@example.com</p>
+                    <p className="text-sm text-slate-400 font-medium">{mockScenario.userProfile.email}</p>
                 </div>
             </div>
             <button

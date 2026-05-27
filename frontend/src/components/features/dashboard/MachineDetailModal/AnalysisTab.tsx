@@ -8,6 +8,7 @@ import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { chartTokens, classTokens, statusTokens } from '@/styles/tokens';
 import { useElementSize } from '@/lib/useElementSize';
+import { mockScenario } from '@/lib/mockScenario';
 
 interface AnalysisTabProps {
     machine: Machine;
@@ -50,6 +51,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
     const diagnostics = report?.diagnostics || { comp: 98, fan: 85, valve: 92 };
     const roi = report?.roi_data || { watt: 42.5, door_opens: 12 };
     const machineStatusClass = classTokens.machineStatus[machine.status];
+    const analysisCopy = mockScenario.analysis;
 
     const forecastData = forecast?.prediction_data ?
         (typeof forecast.prediction_data === 'string' ? JSON.parse(forecast.prediction_data) : forecast.prediction_data)
@@ -147,37 +149,35 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                 <div className="flex items-center justify-between">
                     <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                         <Settings2 size={20} className="text-slate-400" />
-                        부품 건강 상태
+                        {analysisCopy.diagnosticsTitle}
                     </h3>
                     <span className="section-label mb-0 bg-slate-100 px-2 py-1" style={{ borderRadius: '6px' }}>AI 분석</span>
                 </div>
                 <div className="p-6 bg-white border border-slate-100 grid gap-6" style={{ borderRadius: 'var(--radius-lg)' }}>
-                    {[
-                        { label: '엔진 (Compressor)', score: diagnostics.comp || 90, detail: (diagnostics.comp || 90) > 90 ? '진동 및 상태 아주 좋음' : '주의 깊은 관찰 필요' },
-                        { label: '냉각 팬 (Condenser Fan)', score: diagnostics.fan || 85, detail: (diagnostics.fan || 85) > 80 ? '냉각 효율 정상 범위' : '미세 진동 감지 (주의)' },
-                        { label: '순환 밸브 (Expansion Valve)', score: diagnostics.valve || 92, detail: (diagnostics.valve || 92) > 90 ? '냉매 흐름 및 압력 양호' : '흐름 불규칙 감지' },
-                    ].map((part, i) => (
+                    {analysisCopy.diagnostics.map((part, i) => {
+                        const score = diagnostics[part.key] || 90;
+                        return (
                         <div key={i} className="space-y-2">
                             <div className="flex justify-between items-end">
                                 <div>
                                     <div className="text-sm font-semibold text-slate-700">{part.label}</div>
-                                    <div className="text-[11px] font-medium text-slate-400">{part.detail}</div>
+                                    <div className="text-[11px] font-medium text-slate-400">{score > 80 ? part.goodDetail : part.warnDetail}</div>
                                 </div>
-                                <div className="text-sm font-bold text-slate-900">{part.score}%</div>
+                                <div className="text-sm font-bold text-slate-900">{score}%</div>
                             </div>
                             <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
-                                    animate={{ width: `${part.score}%` }}
+                                    animate={{ width: `${score}%` }}
                                     transition={{ duration: 0.8, delay: i * 0.1, ease: [0.25, 1, 0.5, 1] }}
                                     className={cn(
                                         "h-full rounded-full",
-                                        part.score > 90 ? classTokens.componentScore.good : part.score > 80 ? classTokens.componentScore.warning : classTokens.componentScore.danger
+                                        score > 90 ? classTokens.componentScore.good : score > 80 ? classTokens.componentScore.warning : classTokens.componentScore.danger
                                     )}
                                 />
                             </div>
                         </div>
-                    ))}
+                    )})}
                 </div>
             </section>
 
@@ -186,7 +186,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                 <div className="flex items-center justify-between">
                     <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                         <Volume2 size={20} className="text-signal-blue" />
-                        실시간 기계 소음
+                        {analysisCopy.liveSignalTitle}
                     </h3>
                     <span className="section-label mb-0">Active Listening</span>
                 </div>
@@ -227,7 +227,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                 <div className="flex items-center justify-between">
                     <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                         <TrendingDown size={20} className="text-signal-red" />
-                        72시간 고장 예보
+                        {analysisCopy.forecastTitle}
                     </h3>
                     {health < 80 && (
                         <div className={cn("flex items-center gap-1.5 px-3 py-1 rounded-full", classTokens.bg.dangerSoft)}>
@@ -258,7 +258,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                                                         style={{ borderRadius: 'var(--radius-sm)' }}
                                                     >
                                                         <p className="opacity-60 mb-1">{data.time}</p>
-                                                        <p className="text-sm">예상 건강: {data.value}%</p>
+                                                        <p className="text-sm">{analysisCopy.forecastValueLabel}: {data.value}%</p>
                                                     </div>
                                                 );
                                             }
@@ -276,7 +276,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                     )} style={{ borderRadius: 'var(--radius-md)' }}>
                         {forecast?.golden_time ? (
                             <div>
-                                <div className={cn("section-label mb-0.5", health < 80 ? classTokens.healthForecast.dangerMuted : classTokens.healthForecast.healthyMuted)}>고장 예상 시점</div>
+                                <div className={cn("section-label mb-0.5", health < 80 ? classTokens.healthForecast.dangerMuted : classTokens.healthForecast.healthyMuted)}>{analysisCopy.forecastFailureLabel}</div>
                                 <div className={cn("text-2xl font-bold tracking-tighter", health < 80 ? classTokens.healthForecast.dangerText : classTokens.healthForecast.healthyText)}
                                     style={{ fontFamily: 'var(--font-heading)' }}
                                 >
@@ -285,8 +285,8 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                             </div>
                         ) : (
                             <div>
-                                <div className="section-label text-emerald-400 mb-0.5">이상 징후 없음</div>
-                                <div className="text-2xl font-bold text-emerald-600 tracking-tighter" style={{ fontFamily: 'var(--font-heading)' }}>Golden Time 확보</div>
+                                <div className="section-label text-emerald-400 mb-0.5">{analysisCopy.forecastHealthyLabel}</div>
+                                <div className="text-2xl font-bold text-emerald-600 tracking-tighter" style={{ fontFamily: 'var(--font-heading)' }}>{analysisCopy.forecastHealthyValue}</div>
                             </div>
                         )}
                         <div className="text-right">
@@ -301,7 +301,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
             <section className="space-y-4">
                 <h3 className="font-bold text-slate-900 flex items-center gap-2" style={{ fontFamily: 'var(--font-heading)' }}>
                     <Zap size={20} className="text-amber-500" />
-                    절약 도움 리포트
+                    {analysisCopy.efficiencyTitle}
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="p-6 bg-slate-50 border border-slate-100 relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
@@ -309,13 +309,13 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                             <div className="p-2 bg-amber-100 text-amber-600" style={{ borderRadius: 'var(--radius-sm)' }}>
                                 <Activity size={18} />
                             </div>
-                            <span className="text-sm font-semibold text-slate-700">전력 사용량</span>
+                            <span className="text-sm font-semibold text-slate-700">{analysisCopy.primaryMetricLabel}</span>
                         </div>
                         <div className="flex items-baseline gap-1 mb-1">
                             <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>{roi.watt || 0}</span>
                             <span className="text-sm font-medium text-slate-400">kWh</span>
                         </div>
-                        <p className="text-xs font-medium text-emerald-500">전주 대비 {Math.round((roi.saved || 8000) / 1200)}% 절감 중</p>
+                        <p className="text-xs font-medium text-emerald-500">{analysisCopy.primaryMetricDescription(roi.saved || 0)}</p>
                     </div>
 
                     <div className="p-6 bg-slate-50 border border-slate-100 relative overflow-hidden" style={{ borderRadius: 'var(--radius-lg)' }}>
@@ -323,13 +323,13 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                             <div className="p-2 bg-blue-100 text-blue-600" style={{ borderRadius: 'var(--radius-sm)' }}>
                                 <ShieldCheck size={18} />
                             </div>
-                            <span className="text-sm font-semibold text-slate-700">문 열림 분석</span>
+                            <span className="text-sm font-semibold text-slate-700">{analysisCopy.secondaryMetricLabel}</span>
                         </div>
                         <div className="flex items-baseline gap-1 mb-1">
                             <span className="text-2xl font-bold text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>{roi.door_opens || 0}</span>
-                            <span className="text-sm font-medium text-slate-400">회 오픈</span>
+                            <span className="text-sm font-medium text-slate-400">{analysisCopy.secondaryMetricUnit}</span>
                         </div>
-                        <p className="text-xs font-medium text-amber-500">02:14 미세 누기 주의</p>
+                        <p className="text-xs font-medium text-amber-500">{analysisCopy.secondaryMetricDescription}</p>
                     </div>
                 </div>
             </section>
@@ -342,7 +342,7 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
                             <div className="p-2 bg-white/20" style={{ borderRadius: 'var(--radius-sm)' }}>
                                 <ShieldCheck size={20} />
                             </div>
-                            <span className="text-sm font-semibold tracking-wide">AI 인사이트</span>
+                            <span className="text-sm font-semibold tracking-wide">{analysisCopy.insightLabel}</span>
                         </div>
                         <p className="text-lg font-medium leading-snug tracking-tight break-keep">
                             {report?.ai_summary || machine.prediction}

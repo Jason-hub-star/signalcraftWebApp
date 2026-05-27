@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Bell, User, Factory, Download } from 'lucide-react';
+import { Bell, User, Download } from 'lucide-react';
 import { NotificationModal } from './NotificationModal';
 import { UserProfileModal } from './UserProfileModal';
 import { usePWAInstall } from '@/lib/usePWAInstall';
@@ -8,6 +8,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { effects } from '@/styles/tokens';
+import signalCraftLogo from '@/assets/signalcraft-logo.png';
 
 export function Header() {
     const [isNotifOpen, setIsNotifOpen] = useState(false);
@@ -37,10 +38,15 @@ export function Header() {
                     style={{ borderRadius: 'var(--radius-sm)' }}
                     aria-label="SignalCraft 홈으로 이동"
                 >
-                    <div className="text-white flex size-10 items-center justify-center bg-signal-blue"
+                    <div className="flex size-10 items-center justify-center overflow-hidden bg-signal-blue"
                         style={{ borderRadius: 'var(--radius-sm)' }}
                     >
-                        <Factory size={22} />
+                        <img
+                            src={signalCraftLogo}
+                            alt=""
+                            className="size-full object-cover"
+                            aria-hidden="true"
+                        />
                     </div>
                     <h2 className="text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>SignalCraft</h2>
                 </Link>

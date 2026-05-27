@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { MoreHorizontal, Brain, Zap, AlertTriangle, CalendarClock, Trash2, Settings2, Snowflake, Thermometer, Wind, Box } from 'lucide-react';
+import { MoreHorizontal, Brain, Zap, AlertTriangle, CalendarClock, Trash2, Settings2, Snowflake, Thermometer, Wind, Box, FlaskConical, Flame, Gauge } from 'lucide-react';
 import { Card } from '../../ui/Card';
 import { Badge } from '../../ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -45,6 +45,9 @@ export function MachineCard({ machine, index, onClick, onManage, onDelete }: Mac
 
     const getMachineIcon = (type: string) => {
         const t = type?.toUpperCase() || '';
+        if (t.includes('REACTOR')) return <FlaskConical className={cn("size-9 sm:size-10", classTokens.machineType.refrigerator)} />;
+        if (t.includes('FURNACE') || t.includes('HEAT')) return <Flame className={cn("size-9 sm:size-10", classTokens.machineType.freezer)} />;
+        if (t.includes('COATER') || t.includes('CHAMBER') || t.includes('FILTER')) return <Gauge className={cn("size-9 sm:size-10", classTokens.machineType.storage)} />;
         if (t.includes('FREEZER') || t.includes('BLAST')) return <Snowflake className={cn("size-9 sm:size-10", classTokens.machineType.freezer)} />;
         if (t.includes('REFRIGERATOR')) return <Thermometer className={cn("size-9 sm:size-10", classTokens.machineType.refrigerator)} />;
         if (t.includes('SHOWCASE')) return <Wind className={cn("size-9 sm:size-10", classTokens.machineType.showcase)} />;

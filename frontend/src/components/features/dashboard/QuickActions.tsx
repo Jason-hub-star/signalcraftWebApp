@@ -1,9 +1,11 @@
-import { PlusCircle, BarChart3, BellOff, Bell, Settings2, Loader2 } from 'lucide-react';
+import { type ComponentType } from 'react';
+import { PlusCircle, BellOff, Bell, Loader2 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
+import { MaterialSymbolIcon } from '@/components/ui/MaterialSymbolIcon';
 
 interface NotificationSettings {
     push_enabled: boolean;
@@ -11,6 +13,18 @@ interface NotificationSettings {
     anomaly_alerts: boolean;
     report_alerts: boolean;
 }
+
+type QuickAction = {
+    id: string;
+    icon?: ComponentType<{ className?: string; size?: number }>;
+    materialIcon?: 'finance' | 'settings';
+    label: string;
+    color: string;
+    path?: string;
+    onClick?: () => void;
+    isLoading?: boolean;
+    isActive?: boolean;
+};
 
 export function QuickActions() {
     const queryClient = useQueryClient();
@@ -43,9 +57,9 @@ export function QuickActions() {
 
     const isPushEnabled = settings?.push_enabled ?? false;
 
-    const actions = [
+    const actions: QuickAction[] = [
         { id: 'add', icon: PlusCircle, label: '기기 추가', color: 'text-signal-blue', path: '#' },
-        { id: 'report', icon: BarChart3, label: '리포트 보기', color: 'text-emerald-500', path: '/report' },
+        { id: 'report', materialIcon: 'finance', label: '리포트 보기', color: 'text-emerald-500', path: '/report' },
         {
             id: 'silence',
             icon: isLoading ? Loader2 : (isPushEnabled ? Bell : BellOff),
@@ -55,7 +69,7 @@ export function QuickActions() {
             isLoading: toggleMutation.isPending || isLoading,
             isActive: isPushEnabled
         },
-        { id: 'settings', icon: Settings2, label: '고급 설정', color: 'text-slate-500', path: '/settings' },
+        { id: 'settings', materialIcon: 'settings', label: '고급 설정', color: 'text-slate-500', path: '/settings' },
     ];
 
     return (
@@ -82,7 +96,7 @@ export function QuickActions() {
                                     }`}
                                 style={{ borderRadius: 'var(--radius-md)' }}
                             >
-                                <Icon className={`${action.color} ${action.isLoading ? 'animate-spin' : ''}`} size={18} />
+                                {Icon ? <Icon className={`${action.color} ${action.isLoading ? 'animate-spin' : ''}`} size={18} /> : null}
                                 <span className={`whitespace-nowrap font-medium text-sm ${action.isActive ? 'text-signal-blue' : ''}`}>
                                     {action.label}
                                 </span>
@@ -93,7 +107,11 @@ export function QuickActions() {
                                 className="flex items-center gap-2.5 h-12 px-5 bg-white border border-slate-100 text-slate-900 text-sm font-medium hover:border-blue-100 transition-colors active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
                                 style={{ borderRadius: 'var(--radius-md)' }}
                             >
-                                <Icon className={action.color as string} size={18} />
+                                {action.materialIcon ? (
+                                    <MaterialSymbolIcon name={action.materialIcon} className={action.color as string} size={18} />
+                                ) : Icon ? (
+                                    <Icon className={action.color as string} size={18} />
+                                ) : null}
                                 <span className="whitespace-nowrap">{action.label}</span>
                             </Link>
                         )}

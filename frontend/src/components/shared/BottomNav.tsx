@@ -1,18 +1,18 @@
-import { LayoutDashboard, Zap, Settings, BarChart3 } from 'lucide-react';
 import { cn } from '../../lib/utils';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { classTokens } from '@/styles/tokens';
+import { MaterialSymbolIcon } from '../ui/MaterialSymbolIcon';
 
 export function BottomNav() {
     const location = useLocation();
 
     const tabs = [
-        { id: 'dashboard', icon: LayoutDashboard, label: '홈', path: '/dashboard' },
-        { id: 'machines', icon: Zap, label: '설비', path: '/machines' },
-        { id: 'reports', icon: BarChart3, label: '리포트', path: '/report' },
-        { id: 'settings', icon: Settings, label: '설정', path: '/settings' },
-    ];
+        { id: 'dashboard', icon: 'dashboard', label: '홈', path: '/dashboard' },
+        { id: 'machines', icon: 'precisionManufacturing', label: '설비', path: '/machines' },
+        { id: 'reports', icon: 'finance', label: '리포트', path: '/report' },
+        { id: 'settings', icon: 'settings', label: '설정', path: '/settings' },
+    ] as const;
 
     return (
         <nav className="fixed bottom-0 w-full bg-white/92 border-t border-slate-100 pb-safe z-50"
@@ -41,9 +41,9 @@ export function BottomNav() {
                                     animate={isActive ? { y: -2 } : { y: 0 }}
                                     transition={{ type: "spring", stiffness: 300, damping: 20 }}
                                 >
-                                    <tab.icon
+                                    <MaterialSymbolIcon
+                                        name={tab.icon}
                                         size={22}
-                                        strokeWidth={isActive ? 2.5 : 2}
                                         className="transition-all"
                                         style={{ transitionDuration: 'var(--duration-normal)' }}
                                     />

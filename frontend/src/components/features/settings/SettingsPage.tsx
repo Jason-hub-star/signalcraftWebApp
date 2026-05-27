@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Bell, Lock, HelpCircle, FileText, LogOut, Moon } from 'lucide-react';
+import { Bell, Lock, FileText, LogOut, Moon } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import { BottomNav } from '../../shared/BottomNav';
 import { ProfileCard } from './ProfileCard';
@@ -10,6 +10,7 @@ import { Header } from '../../shared/Header';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { cssVars } from '@/styles/tokens';
+import { MaterialSymbolIcon } from '@/components/ui/MaterialSymbolIcon';
 
 const containerVariants: Variants = {
     hidden: { opacity: 0 },
@@ -174,7 +175,7 @@ export function SettingsPage() {
                             type="link"
                         />
                         <SettingsItem
-                            icon={<HelpCircle size={20} />}
+                            icon={<MaterialSymbolIcon name="help" size={20} />}
                             title="고객센터"
                             type="link"
                         />
