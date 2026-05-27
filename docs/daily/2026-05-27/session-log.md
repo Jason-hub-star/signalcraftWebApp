@@ -39,6 +39,5 @@
 - Playwright rechecked `/dashboard` and `/report` after semantic tokenization; no console warnings or errors were reported.
 
 ## Notes
-- Development mode uses mock API by default.
-- Set `VITE_USE_MOCK_API=false` to force the configured backend during local development.
-- Set `VITE_USE_MOCK_API=true` to force mock API in deployed preview/production builds while the backend is being swapped.
+- Mock API is enabled by default while the backend is being swapped.
+- Set `VITE_USE_MOCK_API=false` to force the configured backend after the replacement backend is ready.

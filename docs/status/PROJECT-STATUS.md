@@ -43,8 +43,8 @@ Last Updated: 2026-05-27
 
 ## Recent Changes (2026-05-27)
 1. **Frontend 개발 목업 API 전환 + 토큰 공유화 보강**
-   - `apiFetch` 단일 게이트웨이 추가, 개발 모드 기본 목업 API 사용
-   - `VITE_USE_MOCK_API=true` 설정 시 Vercel preview/production build에서도 목업 API 강제 사용 가능
+   - `apiFetch` 단일 게이트웨이 추가, 백엔드 교체 기간 동안 기본 목업 API 사용
+   - 새 백엔드 연결 시 `VITE_USE_MOCK_API=false`로 목업 API 비활성화 가능
    - 설비 상태 목업: DANGER 1건, WARNING 1건, GOOD 1건
    - `QUERY_KEYS` 팩토리 추가 및 기존 query key/invalidation 분산 제거
    - `styles/tokens.ts` 추가, 차트/카카오/헤더/내보내기 색상 직접값과 핵심 UI class token을 공유 토큰으로 이동

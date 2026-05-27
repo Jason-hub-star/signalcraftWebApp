@@ -24,7 +24,7 @@ const isoDaysFromNow = (days: number) => new Date(now.getTime() + days * 24 * 60
 
 export const isMockApiEnabled = () => {
     const flag = import.meta.env.VITE_USE_MOCK_API;
-    return flag === 'true' || (import.meta.env.DEV && flag !== 'false');
+    return flag !== 'false';
 };
 
 const machines: Machine[] = [
