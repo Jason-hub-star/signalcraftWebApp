@@ -17,7 +17,7 @@ async def list_machines():
         status_map = {
             "GOOD": "running",
             "WARNING": "warning",
-            "DANGER": "danger"
+            "DANGER": "error",
         }
 
         for d in response.data:
@@ -43,7 +43,7 @@ async def list_machines():
                 "status": status_map.get(d["status"], "running"),
                 "health": real_health,
                 "prediction": d["config"].get("prediction", "AI 예측 진행 중") if d["config"] else "AI 예측 진행 중",
-                "imageUrl": f"https://placehold.co/200x200?text={d['name']}",
+                "imageUrl": "",
                 "type": d["model_type"].lower() if d["model_type"] else "freezer"
             })
             

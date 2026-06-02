@@ -1,6 +1,6 @@
 # Project Status
 
-Last Updated: 2026-05-27
+Last Updated: 2026-06-02
 
 ## Current Phase
 - **Phase 6: Notifications** — 진행 중
@@ -22,6 +22,8 @@ Last Updated: 2026-05-27
 | QR 기기 등록 | 대기 | 하드웨어 준비 후 |
 | Frontend E2E 자동화 | 미완료 | Playwright 예정 |
 | 개발 목업 API 모드 | 완료 | FE 개발 모드에서 Raven Materials 위험/주의/정상 목업 데이터 표시 |
+| 고객별 테마/대시보드 설정 | 진행 중 | semantic CSS variables + Raven theme/config foundation |
+| 홈 화면 OCR HOME-001 재배치 | 진행 중 | PR1 완료(인사말/상태 카드/설비 Gantt/정비사 전화), PR2(legacy 제거) 대기 |
 
 ## Deployment
 - Frontend: Vercel (signalcraft-web-app.vercel.app)
@@ -40,6 +42,34 @@ Last Updated: 2026-05-27
 | `notifications` | 6 | alert/report/maintenance 알림 |
 | `maintenance_logs` | 12 | CLEANING/CHECK/PART_REPLACE 이력 |
 | `notification_settings` | 1 | 데모 사용자 설정 |
+
+## Recent Changes (2026-06-02)
+1. **홈 화면 OCR HOME-001 재배치 (PR1)**
+   - 데이터 계약 신설: `frontend/src/lib/contracts/dashboardHome.ts`에 `EquipmentRunState`, `HomeStatusKind`, `HomePeriod`, `StatusOverviewCard`, `GanttSegment`, `DashboardHome` 타입 중앙화
+   - `mockScenario.dashboardHome` 추가: 설비/엣지센서/서버 3개 statusOverview 카드, 5개 설비 24시간 Gantt segments, periodOptions 4종, runtime summary
+   - `QUERY_KEYS.dashboardHome`, `QUERY_KEYS.equipmentUsage(period, machineId?)` 추가
+   - mock API 라우트 추가: `GET /dashboard/home`, `GET /dashboard/equipment-usage`
+   - 신규 7개 컴포넌트: `features/dashboard/home/{HomeGreeting, StatusOverviewSection, StatusInfoCard, HelpOverlay, EquipmentUsageSection, EquipmentGanttChart, MaintenanceCallButton}.tsx`
+   - `DashboardPage.tsx`를 OCR 순서(인사말 → 상태 정보 → 설비 정보 → 정비사 전화)로 재배치
+   - 직접 SVG Gantt(RUNNING/OFF/ERROR/NO_DATA 4상태), `window.matchMedia` 기반 모바일/데스크탑 정비사 전화 분기
+   - PR2(기존 `StatusHero/QuickActions/MachineList` 제거) 대기 — `DashboardPage`는 이미 import 끊김
+   - 검증: `cd frontend && npm run build` pass, `tsc --noEmit` 0 errors, `git diff --check` clean
+
+2. **API Contract Guard — Machine.status 중앙화 (PR0)**
+   - 신규 `frontend/src/lib/contracts/machineStatus.ts`로 `MachineStatus` 타입과 `DEVICE_STATUS_TO_MACHINE_STATUS` 매핑 중앙화
+   - `MachineCard` 인라인 union 제거 및 중앙 타입 import
+   - 백엔드 `machines/router.py`: `status_map["DANGER"] = "error"`(이전 `"danger"` — 프론트 contract 불일치 수정), `imageUrl = ""`(이전 외부 `placehold.co` URL 제거)
+   - 검증: frontend build + `python3 -m compileall app` pass
+
+## Recent Changes (2026-06-01)
+1. **고객별 테마/대시보드 설정 기반 추가**
+   - `index.css`에 semantic theme variables 및 `data-theme="raven"` override 추가
+   - 기존 `signal-*` Tailwind 색상은 semantic variables alias로 유지
+   - `theme.ts`에서 허용된 고객 테마만 적용하고 unknown theme은 `signalcraft`로 fallback
+   - Raven mock company config에 `themeId`, `dashboardPreset`, `enabledMetrics`, dashboard labels 추가
+   - `/dashboard`의 상태 요약 및 설비 목록이 `enabledMetrics` 설정을 따라 렌더되도록 연결
+   - OCR 기반 `MAIN-001`, `MAIN-002`, `HOME-001` 요구사항과 코드 영향 분석을 `docs/ref/app-entry-home-ocr-analysis.md`에 문서화
+   - 검증: `cd frontend && npm run build` pass; Playwright `/dashboard`, `/report`, `/settings` smoke pass
 
 ## Recent Changes (2026-05-27)
 1. **Frontend 개발 목업 API 전환 + 토큰 공유화 보강**

@@ -5,12 +5,13 @@ import { Badge } from '../../ui/Badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '../../../lib/utils';
 import { classTokens, cssVars } from '@/styles/tokens';
+import type { MachineStatus } from '@/lib/contracts/machineStatus';
 
 export interface Machine {
     id: string;
     name: string;
     location: string;
-    status: 'running' | 'warning' | 'error';
+    status: MachineStatus;
     health: number;
     prediction: string;
     imageUrl: string;

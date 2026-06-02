@@ -1,4 +1,9 @@
 import type { Machine } from '@/components/features/dashboard/MachineCard';
+import type { ClientThemeId } from '@/lib/theme';
+import type { DashboardHome } from '@/lib/contracts/dashboardHome';
+
+type DashboardPreset = 'facility-poc' | 'cold-chain' | 'manufacturing';
+type DashboardMetricId = 'statusSummary' | 'equipmentUsage' | 'machineList';
 
 type NotificationSeed = {
     id: string;
@@ -29,9 +34,18 @@ type InsightPeriod = {
 
 export const mockScenario = {
     company: {
+        id: 'raven',
         name: 'Raven Materials',
         siteLabel: '인천 송도 본사 / 소재 공정 라인',
         domain: 'Black TiO2 visible-light photocatalyst',
+        themeId: 'raven' satisfies ClientThemeId,
+        dashboardPreset: 'facility-poc' satisfies DashboardPreset,
+        enabledMetrics: ['statusSummary', 'equipmentUsage', 'machineList'] satisfies DashboardMetricId[],
+        labels: {
+            machine: '설비',
+            usage: '장비 사용 상태',
+            statusSummary: '설비 상태 요약',
+        },
     },
     userProfile: {
         email: 'ops@raven-materials.com',
@@ -39,6 +53,72 @@ export const mockScenario = {
         role: '소재 공정 관리자',
     },
     dashboardSummary: { GOOD: 2, WARNING: 2, DANGER: 1 },
+    dashboardHome: {
+        appVersion: 'v0.0.1',
+        lastUpdatedAt: '2026-06-02T08:30:00+09:00',
+        maintenancePhone: '010-1234-5678',
+        statusOverview: [
+            {
+                id: 'machines',
+                title: '설비 구동 상태',
+                state: 'danger',
+                healthyCount: 2,
+                totalCount: 5,
+                description: '현재 설치된 5대 중 1대가 즉시 점검이 필요해요.',
+            },
+            {
+                id: 'edgeSensors',
+                title: '센서 상태',
+                state: 'healthy',
+                healthyCount: 12,
+                totalCount: 12,
+                description: '모든 센서가 정상으로 데이터를 수집하고 있어요.',
+            },
+            {
+                id: 'server',
+                title: '서버 상태',
+                state: 'healthy',
+                healthyCount: 1,
+                totalCount: 1,
+                description: '백엔드 서버가 안정적으로 응답하고 있어요.',
+            },
+        ],
+        equipmentUsage: {
+            selectedPeriod: '24h',
+            periodOptions: [
+                { id: '24h', label: '지난 24시간' },
+                { id: '7d', label: '지난 7일' },
+                { id: '30d', label: '지난 30일' },
+                { id: '90d', label: '지난 90일' },
+            ],
+            machines: [
+                { id: 'rp-reactor-01', name: 'RP 합성 반응조 01' },
+                { id: 'ht-furnace-02', name: '산소결함 열처리로 02' },
+                { id: 'rcb-coater-01', name: 'RCB 세라믹 블록 코팅 라인' },
+                { id: 'voc-chamber-01', name: 'VOC 저감 성능 챔버' },
+                { id: 'air-filter-rig-01', name: '공조 필터 테스트 리그' },
+            ],
+            segments: [
+                { machineId: 'rp-reactor-01', state: 'RUNNING', startedAt: '2026-06-01T00:00:00+09:00', endedAt: '2026-06-01T08:00:00+09:00' },
+                { machineId: 'rp-reactor-01', state: 'OFF', startedAt: '2026-06-01T08:00:00+09:00', endedAt: '2026-06-01T12:00:00+09:00' },
+                { machineId: 'rp-reactor-01', state: 'RUNNING', startedAt: '2026-06-01T12:00:00+09:00', endedAt: '2026-06-01T20:00:00+09:00' },
+                { machineId: 'rp-reactor-01', state: 'NO_DATA', startedAt: '2026-06-01T20:00:00+09:00', endedAt: '2026-06-02T00:00:00+09:00' },
+                { machineId: 'ht-furnace-02', state: 'ERROR', startedAt: '2026-06-01T00:00:00+09:00', endedAt: '2026-06-01T06:00:00+09:00' },
+                { machineId: 'ht-furnace-02', state: 'OFF', startedAt: '2026-06-01T06:00:00+09:00', endedAt: '2026-06-01T10:00:00+09:00' },
+                { machineId: 'ht-furnace-02', state: 'ERROR', startedAt: '2026-06-01T10:00:00+09:00', endedAt: '2026-06-01T18:00:00+09:00' },
+                { machineId: 'ht-furnace-02', state: 'OFF', startedAt: '2026-06-01T18:00:00+09:00', endedAt: '2026-06-02T00:00:00+09:00' },
+                { machineId: 'rcb-coater-01', state: 'RUNNING', startedAt: '2026-06-01T00:00:00+09:00', endedAt: '2026-06-02T00:00:00+09:00' },
+                { machineId: 'voc-chamber-01', state: 'RUNNING', startedAt: '2026-06-01T00:00:00+09:00', endedAt: '2026-06-01T10:00:00+09:00' },
+                { machineId: 'voc-chamber-01', state: 'OFF', startedAt: '2026-06-01T10:00:00+09:00', endedAt: '2026-06-01T14:00:00+09:00' },
+                { machineId: 'voc-chamber-01', state: 'RUNNING', startedAt: '2026-06-01T14:00:00+09:00', endedAt: '2026-06-02T00:00:00+09:00' },
+                { machineId: 'air-filter-rig-01', state: 'RUNNING', startedAt: '2026-06-01T00:00:00+09:00', endedAt: '2026-06-02T00:00:00+09:00' },
+            ],
+            summary: {
+                runningMinutes: 960,
+                offMinutes: 240,
+            },
+        },
+    } satisfies DashboardHome,
     machines: [
         {
             id: 'rp-reactor-01',

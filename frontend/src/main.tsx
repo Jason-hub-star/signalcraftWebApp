@@ -4,6 +4,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import './index.css'
 import App from './App.tsx'
 import { registerSW } from 'virtual:pwa-register'
+import { mockScenario } from '@/lib/mockScenario'
+import { applyClientTheme } from '@/lib/theme'
+
+applyClientTheme(import.meta.env.VITE_CLIENT_THEME_ID || mockScenario.company.themeId)
 
 const queryClient = new QueryClient({
   defaultOptions: {

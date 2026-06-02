@@ -6,7 +6,11 @@ import { Loader2 } from 'lucide-react';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 
-export function MachineList() {
+interface MachineListProps {
+    title?: string;
+}
+
+export function MachineList({ title = '설비 현황' }: MachineListProps) {
     const [selectedMachine, setSelectedMachine] = useState<Machine | null>(null);
     const [initialView, setInitialView] = useState<'analysis' | 'maintenance'>('analysis');
 
@@ -41,8 +45,8 @@ export function MachineList() {
     return (
         <div className="px-4 space-y-3 pb-10">
             <div className="flex items-center justify-between py-2">
-                <h3 className="text-slate-900 tracking-tight">설비 현황</h3>
-                <button className="text-signal-blue text-sm font-medium p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"
+                <h3 className="text-slate-900 tracking-tight">{title} 현황</h3>
+                <button className="text-primary text-sm font-medium p-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     style={{ borderRadius: 'var(--radius-sm)' }}
                 >
                     전체 보기

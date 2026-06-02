@@ -152,6 +152,24 @@ export async function mockApiFetch(path: string, init?: RequestInit): Promise<Re
         return jsonResponse(mockScenario.dashboardSummary);
     }
 
+    if (url.pathname === '/dashboard/home') {
+        return jsonResponse(mockScenario.dashboardHome);
+    }
+
+    if (url.pathname === '/dashboard/equipment-usage') {
+        const period = url.searchParams.get('period') || '24h';
+        const machineId = url.searchParams.get('machine_id');
+        const base = mockScenario.dashboardHome.equipmentUsage;
+        const segments = machineId
+            ? base.segments.filter((segment) => segment.machineId === machineId)
+            : base.segments;
+        return jsonResponse({
+            ...base,
+            selectedPeriod: period,
+            segments,
+        });
+    }
+
     if (url.pathname === '/shared/user-profile/me') {
         return jsonResponse({
             user: {

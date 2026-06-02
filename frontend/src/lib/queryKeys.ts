@@ -4,6 +4,9 @@ export const QUERY_KEYS = {
     notificationSettings: ['settings', 'notifications'] as const,
     userProfile: ['user', 'profile'] as const,
     dashboardSummary: ['dashboard', 'summary'] as const,
+    dashboardHome: ['dashboard', 'home'] as const,
+    equipmentUsage: (period: string, machineId?: string) =>
+        ['dashboard', 'equipment-usage', period, machineId ?? null] as const,
     machineAnalysis: (machineId: string) => ['machine-analysis', machineId] as const,
     machineSmartLogs: (machineId: string) => ['machine-smart-logs', machineId] as const,
     maintenanceHistory: (machineId: string) => ['maintenance-history', machineId] as const,
