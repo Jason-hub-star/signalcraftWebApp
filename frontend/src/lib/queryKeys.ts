@@ -3,7 +3,6 @@ export const QUERY_KEYS = {
     notifications: ['notifications'] as const,
     notificationSettings: ['settings', 'notifications'] as const,
     userProfile: ['user', 'profile'] as const,
-    dashboardSummary: ['dashboard', 'summary'] as const,
     dashboardHome: ['dashboard', 'home'] as const,
     equipmentUsage: (period: string, machineId?: string) =>
         ['dashboard', 'equipment-usage', period, machineId ?? null] as const,

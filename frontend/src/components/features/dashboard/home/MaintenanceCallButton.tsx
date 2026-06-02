@@ -78,7 +78,7 @@ export function MaintenanceCallButton({ phone }: MaintenanceCallButtonProps) {
                             style={{ borderRadius: cssVars.radiusLg }}
                         >
                             <div className="flex items-start justify-between mb-2">
-                                <p className={cn('text-xs font-semibold uppercase tracking-wider', classTokens.text.muted)}>
+                                <p className={cn('text-xs font-semibold uppercase', classTokens.text.muted)}>
                                     정비사 연락처
                                 </p>
                                 <button
@@ -96,7 +96,7 @@ export function MaintenanceCallButton({ phone }: MaintenanceCallButtonProps) {
                                 </button>
                             </div>
                             <p
-                                className={cn('text-3xl font-bold tracking-tight my-4', classTokens.text.brand)}
+                                className={cn('text-3xl font-bold my-4', classTokens.text.brand)}
                                 style={{ fontFamily: cssVars.fontHeading }}
                             >
                                 {phone}

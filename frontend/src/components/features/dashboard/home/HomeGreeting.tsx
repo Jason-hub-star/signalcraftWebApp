@@ -22,11 +22,11 @@ function formatRelativeTime(iso: string): string {
 export function HomeGreeting({ fullName, lastUpdatedAt }: HomeGreetingProps) {
     return (
         <section className="px-6 mb-6">
-            <p className={`${classTokens.text.subtle} text-sm font-medium tracking-tight mb-1`}>
+            <p className={`${classTokens.text.subtle} text-sm font-medium mb-1`}>
                 안녕하세요, {fullName} 님
             </p>
             <h2
-                className={`${classTokens.text.primary} tracking-tight text-2xl font-bold`}
+                className={`${classTokens.text.primary} text-2xl font-bold`}
                 style={{ fontFamily: cssVars.fontHeading }}
             >
                 좋은 하루 보내고 있어요 👋

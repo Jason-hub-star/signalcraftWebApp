@@ -37,10 +37,21 @@ export type EquipmentUsageData = {
     };
 };
 
+export const EQUIPMENT_SUMMARY_STATES = ['RUNNING', 'OFF'] as const;
+export type EquipmentSummaryState = (typeof EQUIPMENT_SUMMARY_STATES)[number];
+
+export type EquipmentSummaryItem = {
+    id: string;
+    name: string;
+    type: string;
+    state: EquipmentSummaryState;
+};
+
 export type DashboardHome = {
     appVersion: string;
     lastUpdatedAt: string;
     maintenancePhone: string;
     statusOverview: StatusOverviewCard[];
     equipmentUsage: EquipmentUsageData;
+    equipmentSummary: EquipmentSummaryItem[];
 };

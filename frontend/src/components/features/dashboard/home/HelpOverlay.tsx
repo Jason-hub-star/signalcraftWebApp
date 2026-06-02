@@ -36,7 +36,7 @@ export function HelpOverlay({ isOpen, title, description, onClose }: HelpOverlay
                     >
                         <div className="flex items-start justify-between mb-3">
                             <h2
-                                className={cn('text-base font-bold tracking-tight', classTokens.text.primary)}
+                                className={cn('text-base font-bold', classTokens.text.primary)}
                                 style={{ fontFamily: cssVars.fontHeading }}
                             >
                                 {title}

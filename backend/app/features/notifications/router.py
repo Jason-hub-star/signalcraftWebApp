@@ -33,7 +33,7 @@ async def list_notifications():
 async def mark_as_read(notification_id: str):
     try:
         response = supabase.table("notifications").update({"is_read": True}).eq("id", notification_id).execute()
-        return {"status": "success"}
+        return {"ok": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -42,7 +42,7 @@ async def mark_all_as_read():
     user_id = "00000000-0000-0000-0000-000000000001"
     try:
         response = supabase.table("notifications").update({"is_read": True}).eq("user_id", user_id).execute()
-        return {"status": "success"}
+        return {"ok": True}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

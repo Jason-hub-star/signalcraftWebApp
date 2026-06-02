@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { HelpCircle, ChevronDown } from 'lucide-react';
 import { classTokens, cssVars } from '@/styles/tokens';
 import { cn } from '@/lib/utils';
-import type { EquipmentUsageData, HomePeriod } from '@/lib/contracts/dashboardHome';
+import type { EquipmentRunState, EquipmentUsageData, HomePeriod } from '@/lib/contracts/dashboardHome';
 import { EquipmentGanttChart } from './EquipmentGanttChart';
 
 interface EquipmentUsageSectionProps {
@@ -25,6 +25,28 @@ function formatMinutes(minutes: number): string {
     const remain = minutes % 60;
     if (remain === 0) return `${hours}시간`;
     return `${hours}시간 ${remain}분`;
+}
+
+function getClippedMinutes(
+    state: EquipmentRunState,
+    data: EquipmentUsageData,
+    selectedMachineId: string,
+    periodStartAt: string,
+    periodEndAt: string,
+): number {
+    const startMs = new Date(periodStartAt).getTime();
+    const endMs = new Date(periodEndAt).getTime();
+    if (!(endMs > startMs)) return 0;
+
+    const totalMs = data.segments.reduce((sum, segment) => {
+        if (segment.machineId !== selectedMachineId || segment.state !== state) return sum;
+        const segmentStart = Math.max(new Date(segment.startedAt).getTime(), startMs);
+        const segmentEnd = Math.min(new Date(segment.endedAt).getTime(), endMs);
+        if (!(segmentEnd > segmentStart)) return sum;
+        return sum + (segmentEnd - segmentStart);
+    }, 0);
+
+    return Math.round(totalMs / 60000);
 }
 
 export function EquipmentUsageSection({
@@ -59,11 +81,16 @@ export function EquipmentUsageSection({
         };
     }, [data.segments, data.selectedPeriod]);
 
+    const usageSummary = useMemo(() => ({
+        runningMinutes: getClippedMinutes('RUNNING', data, selectedMachineId, periodStartAt, periodEndAt),
+        offMinutes: getClippedMinutes('OFF', data, selectedMachineId, periodStartAt, periodEndAt),
+    }), [data, selectedMachineId, periodStartAt, periodEndAt]);
+
     return (
         <section className="px-6 mb-8">
             <div className="flex items-center justify-between mb-4">
                 <h3
-                    className={cn('text-base font-bold tracking-tight', classTokens.text.primary)}
+                    className={cn('text-base font-bold', classTokens.text.primary)}
                     style={{ fontFamily: cssVars.fontHeading }}
                 >
                     설비 정보
@@ -153,10 +180,10 @@ export function EquipmentUsageSection({
                 >
                     <p className={cn('text-xs', classTokens.text.muted)}>구동 누적</p>
                     <p
-                        className={cn('text-lg font-bold tracking-tight', classTokens.text.primary)}
+                        className={cn('text-lg font-bold', classTokens.text.primary)}
                         style={{ fontFamily: cssVars.fontHeading }}
                     >
-                        {formatMinutes(data.summary.runningMinutes)}
+                        {formatMinutes(usageSummary.runningMinutes)}
                     </p>
                 </div>
                 <div
@@ -165,10 +192,10 @@ export function EquipmentUsageSection({
                 >
                     <p className={cn('text-xs', classTokens.text.muted)}>정지 누적</p>
                     <p
-                        className={cn('text-lg font-bold tracking-tight', classTokens.text.primary)}
+                        className={cn('text-lg font-bold', classTokens.text.primary)}
                         style={{ fontFamily: cssVars.fontHeading }}
                     >
-                        {formatMinutes(data.summary.offMinutes)}
+                        {formatMinutes(usageSummary.offMinutes)}
                     </p>
                 </div>
             </div>

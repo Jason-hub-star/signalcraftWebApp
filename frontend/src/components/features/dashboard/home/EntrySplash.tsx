@@ -41,7 +41,7 @@ export function EntrySplash({ version, onClose, autoDismissMs = 2500 }: EntrySpl
                 />
                 <div className="flex flex-col items-center gap-1">
                     <h1
-                        className={cn('text-2xl font-bold tracking-tight', classTokens.text.primary)}
+                        className={cn('text-2xl font-bold', classTokens.text.primary)}
                         style={{ fontFamily: cssVars.fontHeading }}
                     >
                         SignalCraft
@@ -56,7 +56,7 @@ export function EntrySplash({ version, onClose, autoDismissMs = 2500 }: EntrySpl
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.4, delay: 0.6 }}
-                className={cn('absolute bottom-10 text-[11px] font-semibold tracking-widest uppercase', classTokens.text.muted)}
+                className={cn('absolute bottom-10 text-[11px] font-semibold uppercase', classTokens.text.muted)}
             >
                 {version}
             </motion.p>

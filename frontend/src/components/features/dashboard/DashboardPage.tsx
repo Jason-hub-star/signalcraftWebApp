@@ -7,6 +7,7 @@ import { BottomNav } from '../../shared/BottomNav';
 import { EntrySplash } from './home/EntrySplash';
 import { HomeGreeting } from './home/HomeGreeting';
 import { StatusOverviewSection } from './home/StatusOverviewSection';
+import { EquipmentSummarySection } from './home/EquipmentSummarySection';
 import { EquipmentUsageSection } from './home/EquipmentUsageSection';
 import { MaintenanceCallButton } from './home/MaintenanceCallButton';
 import { HelpOverlay } from './home/HelpOverlay';
@@ -77,6 +78,8 @@ export function DashboardPage() {
             if (!response.ok) throw new Error('홈 데이터 로딩 실패');
             return response.json();
         },
+        refetchInterval: 10 * 60 * 1000,
+        refetchIntervalInBackground: false,
     });
 
     return (
@@ -105,6 +108,10 @@ export function DashboardPage() {
                                 statusOverview={home.statusOverview}
                                 onHelpClick={() => setHelpSection('status')}
                             />
+                        )}
+
+                        {enabledMetrics.has('equipmentSummary') && (
+                            <EquipmentSummarySection items={home.equipmentSummary} />
                         )}
 
                         {enabledMetrics.has('equipmentUsage') && (

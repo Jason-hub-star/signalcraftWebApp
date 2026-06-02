@@ -60,7 +60,7 @@ export function StatusInfoCard({ card }: StatusInfoCardProps) {
                     {STATE_LABEL[card.state]}
                 </span>
                 <h4
-                    className={cn('text-base font-bold tracking-tight truncate', classTokens.text.primary)}
+                    className={cn('text-base font-bold truncate', classTokens.text.primary)}
                     style={{ fontFamily: cssVars.fontHeading }}
                 >
                     {card.title}

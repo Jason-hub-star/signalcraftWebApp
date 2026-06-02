@@ -15,7 +15,7 @@ export function StatusOverviewSection({ statusOverview, onHelpClick }: StatusOve
         <section className="px-6 mb-8">
             <div className="flex items-center gap-1.5 mb-3">
                 <h3
-                    className={cn('text-base font-bold tracking-tight', classTokens.text.primary)}
+                    className={cn('text-base font-bold', classTokens.text.primary)}
                     style={{ fontFamily: cssVars.fontHeading }}
                 >
                     상태 정보

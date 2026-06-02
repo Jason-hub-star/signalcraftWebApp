@@ -23,7 +23,7 @@ Last Updated: 2026-06-02
 | Frontend E2E 자동화 | 미완료 | Playwright 예정 |
 | 개발 목업 API 모드 | 완료 | FE 개발 모드에서 Raven Materials 위험/주의/정상 목업 데이터 표시 |
 | 고객별 테마/대시보드 설정 | 진행 중 | semantic CSS variables + Raven theme/config foundation |
-| 홈 화면 OCR HOME-001 재배치 | 진행 중 | PR1 완료(인사말/상태 카드/설비 Gantt/정비사 전화), PR2(legacy 제거) 대기 |
+| 홈 화면 OCR HOME-001 재배치 | 완료 | 9/9. 핀치 줌(#6) 포함 완료(native touch). PR2 레거시 제거 완료. 모바일 실기기 핀치 테스트만 남음 |
 
 ## Deployment
 - Frontend: Vercel (signalcraft-web-app.vercel.app)
@@ -44,7 +44,27 @@ Last Updated: 2026-06-02
 | `notification_settings` | 1 | 데모 사용자 설정 |
 
 ## Recent Changes (2026-06-02)
-1. **홈 화면 OCR HOME-001 재배치 (PR1)**
+1. **백엔드 contract 동기화 + 핀치 줌 + 레거시 제거 (PR3)**
+   - `backend/app/features/dashboard/router.py` 전면 재작성: `GET /summary` 제거, `GET /home`·`GET /equipment-usage` 신규 (devices 시드 기반 동적 빌드)
+   - `backend/app/features/notifications/router.py`: `POST /{id}/read`·`POST /mark-all-read` 응답을 `{status:"success"}` → `{ok:true}`로 통일 (프론트 기대값과 일치)
+   - 프론트 레거시 컴포넌트 제거: `StatusHero.tsx`, `QuickActions.tsx`, `MachineList.tsx` 파일 삭제 + `QUERY_KEYS.dashboardSummary` + `mockApi /dashboard/summary` 라우트 + `mockScenario.dashboardSummary` 필드 폐기
+   - `EquipmentGanttChart.tsx` 핀치 줌 + 패닝 + 줌 리셋 버튼 (native touch only, 의존성 추가 0). MIN_SPAN 5%까지 확대, `selectedMachineId`/기간 변경 시 자동 리셋
+   - `machineIcons.tsx` AHU → `Fan` 아이콘으로 바큠펌프(Wind)와 시각 구분
+   - FE-BE 1:1 매칭 분석 결과: ✅ 9 / ⚠️ 4 / ❌ 2 / 🟡 1 → ❌ 2개(`/home`, `/equipment-usage`)와 ⚠️ notifications 응답 필드를 이번 PR에서 해결
+   - 검증: 백엔드 `python3 -m compileall app` pass, 프론트 `tsc --noEmit` 0 errors, `npm run build` pass (30.73s)
+
+2. **홈 화면 OCR HOME-001 보강 (PR1.5) — #3 ON/OFF 요약 + #8 10분 polling + 머신 라인업 교체**
+   - 누락된 OCR #3 요구사항 구현: `EquipmentSummarySection.tsx` 신규 — 전체 설비 ON/OFF를 2×2 그리드로 표시, 5대 이상이면 Framer Motion `drag="x"` 기반 스와이프 페이지 핸들 + dot indicator
+   - 데이터 계약 확장: `dashboardHome.ts`에 `EquipmentSummaryItem` / `EquipmentSummaryState` 타입 추가, `DashboardHome.equipmentSummary` 필드 추가
+   - 신규 `enabledMetrics: 'equipmentSummary'` 게이트 — `DashboardPage`에서 #2 상태 정보와 #4 설비 정보 사이에 삽입
+   - #8 10분 자동 polling: `useQuery({ refetchInterval: 10 * 60 * 1000, refetchIntervalInBackground: false })`
+   - 머신 5대 라인업을 일반 시설관리 장비로 교체: 냉동칠러 / 메인 컴프레서 02 / 바큠펌프 01 / 진공오븐 01 / 공조기 01 (Raven Materials 시나리오 자체는 유지)
+   - 머신 아이콘 유틸 분리: `MachineCard` 내부 함수를 `@/lib/machineIcons.tsx`로 추출 + CHILLER/COMPRESSOR/VACUUM/OVEN/AHU 키워드 추가 (중복 구현 회피)
+   - 영향 받은 모든 mock 데이터 일관성 갱신: notifications, maintenanceHistory, aiInsight의 머신 ID/이름 참조 5건 모두 새 라인업으로 교체
+   - 핀치 줌(#6)은 PRD "고려" 표현 + 줌 후 UX(패닝 vs 구간 변경) 미정이라 v0.0.2 별도 PR로 분리
+   - 검증: `npm run build` pass (3111 modules, 25.56s), `tsc --noEmit` 0 errors, `git diff --check` clean, 기존 머신 ID 잔존 0건
+
+2. **홈 화면 OCR HOME-001 재배치 (PR1)**
    - 데이터 계약 신설: `frontend/src/lib/contracts/dashboardHome.ts`에 `EquipmentRunState`, `HomeStatusKind`, `HomePeriod`, `StatusOverviewCard`, `GanttSegment`, `DashboardHome` 타입 중앙화
    - `mockScenario.dashboardHome` 추가: 설비/엣지센서/서버 3개 statusOverview 카드, 5개 설비 24시간 Gantt segments, periodOptions 4종, runtime summary
    - `QUERY_KEYS.dashboardHome`, `QUERY_KEYS.equipmentUsage(period, machineId?)` 추가

@@ -148,10 +148,6 @@ export async function mockApiFetch(path: string, init?: RequestInit): Promise<Re
         return jsonResponse({ machines });
     }
 
-    if (url.pathname === '/dashboard/summary') {
-        return jsonResponse(mockScenario.dashboardSummary);
-    }
-
     if (url.pathname === '/dashboard/home') {
         return jsonResponse(mockScenario.dashboardHome);
     }

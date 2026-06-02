@@ -1,8 +1,21 @@
 # Open Issues
 
-Last Updated: 2026-03-16
+Last Updated: 2026-06-02
 
 ## High Priority
+
+### 백엔드 `equipmentSummary.state` 매핑 의미 혼동
+- **이슈**: `backend/app/features/dashboard/router.py`의 `RUNTIME_TO_SUMMARY_STATE`가 건강도(GOOD/WARNING/DANGER) 기반으로 작동 상태(RUNNING/OFF)를 추정 — WARNING device는 OFF로 잘못 변환됨
+- **영향**: 실 백엔드 연결 시 `equipmentSummary` 응답이 mock과 달라짐. 예: vacuum-oven-01(건강도 warning + 실제 RUNNING) → 백엔드는 OFF로 응답
+- **근본 원인**: Supabase `devices` 테이블에 작동 상태(RUNNING/OFF) 필드 없음. 작동 상태는 `machine_event_logs`에서 와야 정확
+- **다음 액션**: (1) `devices.operational_status` 컬럼 추가하거나 (2) `machine_event_logs` 최신 이벤트 기반 집계로 변경. mockScenario와 매핑 일치 필요
+- **소유자**: Dev (백엔드 시드/스키마 검토와 함께)
+
+### 백엔드 `devices` 시드 새 머신 라인업 갱신 미확인
+- **이슈**: 프론트는 새 5대(chiller-01/compressor-01/vacuum-pump-01/vacuum-oven-01/ahu-01)로 갱신됐지만 Supabase DB 시드는 미확인
+- **영향**: 실 백엔드 응답이 mock과 다른 한국어 기기명/ID를 반환할 가능성
+- **다음 액션**: Supabase `devices` 테이블 직접 조회 → 새 라인업으로 시드 마이그레이션
+- **소유자**: Dev
 
 ### Railway/Vercel 환경변수 전환
 - **이슈**: 새 Supabase 프로젝트(`zlcnanvidrjgpuugbcou`)로 로컬 .env는 전환 완료, Railway/Vercel 환경변수는 수동 변경 필요
