@@ -4,7 +4,7 @@ export type EquipmentRunState = (typeof EQUIPMENT_RUN_STATES)[number];
 export const HOME_STATUS_KINDS = ['healthy', 'warning', 'danger'] as const;
 export type HomeStatusKind = (typeof HOME_STATUS_KINDS)[number];
 
-export const HOME_PERIODS = ['24h', '7d', '30d', '90d'] as const;
+export const HOME_PERIODS = ['24h', '3d', '5d', '7d'] as const;
 export type HomePeriod = (typeof HOME_PERIODS)[number];
 
 export const STATUS_OVERVIEW_IDS = ['machines', 'edgeSensors', 'server'] as const;

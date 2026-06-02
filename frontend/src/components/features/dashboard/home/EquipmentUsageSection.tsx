@@ -14,9 +14,9 @@ interface EquipmentUsageSectionProps {
 
 const PERIOD_TO_MS: Record<HomePeriod, number> = {
     '24h': 24 * 60 * 60 * 1000,
+    '3d': 3 * 24 * 60 * 60 * 1000,
+    '5d': 5 * 24 * 60 * 60 * 1000,
     '7d': 7 * 24 * 60 * 60 * 1000,
-    '30d': 30 * 24 * 60 * 60 * 1000,
-    '90d': 90 * 24 * 60 * 60 * 1000,
 };
 
 function formatMinutes(minutes: number): string {
@@ -88,7 +88,7 @@ export function EquipmentUsageSection({
 
     return (
         <section className="px-6 mb-8">
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-1.5 mb-4">
                 <h3
                     className={cn('text-base font-bold', classTokens.text.primary)}
                     style={{ fontFamily: cssVars.fontHeading }}
@@ -100,7 +100,7 @@ export function EquipmentUsageSection({
                     onClick={onHelpClick}
                     aria-label="설비 정보 도움말 열기"
                     className={cn(
-                        'p-1.5 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                        'p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
                         classTokens.text.muted,
                         classTokens.hover.subtle,
                     )}
@@ -173,9 +173,9 @@ export function EquipmentUsageSection({
                 periodEndAt={periodEndAt}
             />
 
-            <div className="mt-4 grid grid-cols-2 gap-3">
+            <div className="mt-4">
                 <div
-                    className={cn('p-3 bg-muted', classTokens.border.subtle, 'border')}
+                    className={cn('w-full p-3 bg-muted', classTokens.border.subtle, 'border')}
                     style={{ borderRadius: cssVars.radiusMd }}
                 >
                     <p className={cn('text-xs', classTokens.text.muted)}>구동 누적</p>
@@ -184,18 +184,6 @@ export function EquipmentUsageSection({
                         style={{ fontFamily: cssVars.fontHeading }}
                     >
                         {formatMinutes(usageSummary.runningMinutes)}
-                    </p>
-                </div>
-                <div
-                    className={cn('p-3 bg-muted', classTokens.border.subtle, 'border')}
-                    style={{ borderRadius: cssVars.radiusMd }}
-                >
-                    <p className={cn('text-xs', classTokens.text.muted)}>정지 누적</p>
-                    <p
-                        className={cn('text-lg font-bold', classTokens.text.primary)}
-                        style={{ fontFamily: cssVars.fontHeading }}
-                    >
-                        {formatMinutes(usageSummary.offMinutes)}
                     </p>
                 </div>
             </div>

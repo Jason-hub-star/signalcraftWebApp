@@ -51,7 +51,7 @@ export function Header() {
                     <h2 className="text-slate-900" style={{ fontFamily: 'var(--font-heading)' }}>SignalCraft</h2>
                 </Link>
 
-                <div className="flex items-center gap-2">
+                <div className="hidden items-center gap-2">
                     {showInstallButton && (
                         <button
                             onClick={() => {

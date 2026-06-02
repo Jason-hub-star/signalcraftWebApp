@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, type PanInfo } from 'framer-motion';
+import { HelpCircle } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { classTokens, cssVars } from '@/styles/tokens';
 import { cn } from '@/lib/utils';
@@ -8,6 +9,7 @@ import type { EquipmentSummaryItem, EquipmentSummaryState } from '@/lib/contract
 
 interface EquipmentSummarySectionProps {
     items: EquipmentSummaryItem[];
+    onHelpClick?: () => void;
 }
 
 const ITEMS_PER_PAGE = 4;
@@ -38,7 +40,7 @@ function chunk<T>(arr: T[], size: number): T[][] {
     return pages;
 }
 
-export function EquipmentSummarySection({ items }: EquipmentSummarySectionProps) {
+export function EquipmentSummarySection({ items, onHelpClick }: EquipmentSummarySectionProps) {
     const pages = useMemo(() => chunk(items, ITEMS_PER_PAGE), [items]);
     const pageCount = pages.length;
     const [currentPage, setCurrentPage] = useState(0);
@@ -79,12 +81,29 @@ export function EquipmentSummarySection({ items }: EquipmentSummarySectionProps)
     return (
         <section className="px-6 mb-8" aria-label="설비 요약">
             <div className="flex items-center justify-between mb-3">
-                <h3
-                    className={cn('text-base font-bold', classTokens.text.primary)}
-                    style={{ fontFamily: cssVars.fontHeading }}
-                >
-                    설비 요약
-                </h3>
+                <div className="flex items-center gap-1.5">
+                    <h3
+                        className={cn('text-base font-bold', classTokens.text.primary)}
+                        style={{ fontFamily: cssVars.fontHeading }}
+                    >
+                        설비 요약
+                    </h3>
+                    {onHelpClick && (
+                        <button
+                            type="button"
+                            onClick={onHelpClick}
+                            aria-label="설비 요약 도움말 열기"
+                            className={cn(
+                                'p-1 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2',
+                                classTokens.text.muted,
+                                classTokens.hover.subtle,
+                            )}
+                            style={{ borderRadius: cssVars.radiusSm }}
+                        >
+                            <HelpCircle className="size-4" />
+                        </button>
+                    )}
+                </div>
                 <span className={cn('text-xs font-medium', classTokens.text.muted)}>
                     전체 {items.length}대
                 </span>

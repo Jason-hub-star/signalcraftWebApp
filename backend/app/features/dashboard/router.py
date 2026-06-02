@@ -13,12 +13,12 @@ MAINTENANCE_PHONE = "010-1234-5678"
 DEVICE_STATUS_TO_MACHINE_STATUS = {"GOOD": "running", "WARNING": "warning", "DANGER": "error"}
 RUNTIME_TO_SUMMARY_STATE = {"running": "RUNNING", "warning": "OFF", "error": "OFF"}
 
-PERIOD_HOURS = {"24h": 24, "7d": 24 * 7, "30d": 24 * 30, "90d": 24 * 90}
+PERIOD_HOURS = {"24h": 24, "3d": 24 * 3, "5d": 24 * 5, "7d": 24 * 7}
 PERIOD_OPTIONS = [
     {"id": "24h", "label": "지난 24시간"},
+    {"id": "3d", "label": "지난 3일"},
+    {"id": "5d", "label": "지난 5일"},
     {"id": "7d", "label": "지난 7일"},
-    {"id": "30d", "label": "지난 30일"},
-    {"id": "90d", "label": "지난 90일"},
 ]
 
 
@@ -38,7 +38,7 @@ def _build_status_overview(devices: list[dict]) -> list[dict]:
     return [
         {
             "id": "machines",
-            "title": "설비 구동 상태",
+            "title": "설비 연결 상태",
             "state": machines_state,
             "healthyCount": healthy,
             "totalCount": total,
@@ -49,22 +49,6 @@ def _build_status_overview(devices: list[dict]) -> list[dict]:
                 if healthy < total
                 else f"현재 설치된 {total}대 모두 정상 가동 중이에요."
             ),
-        },
-        {
-            "id": "edgeSensors",
-            "title": "센서 상태",
-            "state": "healthy",
-            "healthyCount": total * 2,
-            "totalCount": total * 2,
-            "description": "모든 센서가 정상으로 데이터를 수집하고 있어요.",
-        },
-        {
-            "id": "server",
-            "title": "서버 상태",
-            "state": "healthy",
-            "healthyCount": 1,
-            "totalCount": 1,
-            "description": "백엔드 서버가 안정적으로 응답하고 있어요.",
         },
     ]
 

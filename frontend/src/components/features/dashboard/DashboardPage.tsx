@@ -3,7 +3,6 @@ import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
 import { Header } from '../../shared/Header';
-import { BottomNav } from '../../shared/BottomNav';
 import { EntrySplash } from './home/EntrySplash';
 import { HomeGreeting } from './home/HomeGreeting';
 import { StatusOverviewSection } from './home/StatusOverviewSection';
@@ -22,7 +21,7 @@ interface UserProfile {
     };
 }
 
-type HelpSection = 'status' | 'equipment' | null;
+type HelpSection = 'status' | 'summary' | 'equipment' | null;
 
 const ENTRY_SPLASH_FLAG = 'signalcraft:entrySplashShown';
 
@@ -38,7 +37,11 @@ function shouldShowEntrySplash(): boolean {
 const HELP_COPY: Record<Exclude<HelpSection, null>, { title: string; description: string }> = {
     status: {
         title: '상태 정보 영역',
-        description: '현재 설치된 설비와 엣지 센서, 서버 상태를 한눈에 확인할 수 있어요. 상태는 양호(초록), 보통(노랑), 불량(빨강)으로 표시돼요.',
+        description: '현재 설치된 설비의 연결 상태를 한눈에 확인할 수 있어요. 상태는 양호(초록), 보통(노랑), 불량(빨강)으로 표시돼요.',
+    },
+    summary: {
+        title: '설비 요약 영역',
+        description: '전체 설비의 현재 가동·정지 상태를 카드로 보여줘요. 설비가 5대 이상이면 좌우로 넘겨서 확인할 수 있어요.',
     },
     equipment: {
         title: '설비 정보 영역',
@@ -83,7 +86,7 @@ export function DashboardPage() {
     });
 
     return (
-        <div className="flex flex-col min-h-screen pb-24 bg-background">
+        <div className="flex flex-col min-h-screen pb-8 bg-background">
             <Header />
             <main className="flex-1 overflow-y-auto pt-4">
                 {isHomeLoading ? (
@@ -111,7 +114,10 @@ export function DashboardPage() {
                         )}
 
                         {enabledMetrics.has('equipmentSummary') && (
-                            <EquipmentSummarySection items={home.equipmentSummary} />
+                            <EquipmentSummarySection
+                                items={home.equipmentSummary}
+                                onHelpClick={() => setHelpSection('summary')}
+                            />
                         )}
 
                         {enabledMetrics.has('equipmentUsage') && (
@@ -129,7 +135,6 @@ export function DashboardPage() {
                     </>
                 )}
             </main>
-            <BottomNav />
 
             <HelpOverlay
                 isOpen={helpSection !== null}
