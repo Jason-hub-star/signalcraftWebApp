@@ -3,26 +3,22 @@ import { motion } from 'framer-motion';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
-
-interface UserProfile {
-    user: {
-        email: string;
-        full_name: string;
-        role: string;
-    };
-    device_count: number;
-    plan: string;
-}
+import type { MeResponse } from '@/lib/contracts/cloudRunApi';
+import {
+    meResponseToUserProfile,
+    type UserProfile,
+} from '@/lib/contracts/userProfileAdapter';
 
 export function ProfileCard() {
     const { data: profile, isPending } = useQuery<UserProfile>({
         queryKey: QUERY_KEYS.userProfile,
         queryFn: async () => {
-            const response = await apiFetch('/shared/user-profile/me');
+            const response = await apiFetch('/me');
             if (!response.ok) {
                 throw new Error('프로필 정보를 불러오는데 실패했습니다.');
             }
-            return response.json();
+            const me = (await response.json()) as MeResponse;
+            return meResponseToUserProfile(me);
         },
     });
 
@@ -57,14 +53,15 @@ export function ProfileCard() {
                     {profile?.user.full_name || '사용자'} 님
                 </h3>
                 <p className="text-sm text-slate-400 font-medium mt-0.5">
-                    {profile?.user.role} • 연결 기기 {profile?.device_count}대
+                    {profile?.user.role}
+                    {profile?.device_count !== undefined && ` • 연결 기기 ${profile.device_count}대`}
                 </p>
                 <p className="text-[10px] text-slate-300 mt-0.5">{profile?.user.email}</p>
             </div>
 
             <div className="flex flex-col items-end gap-1">
                 <span className="px-2 py-0.5 bg-blue-50 text-blue-500 rounded text-[10px] font-semibold">
-                    {profile?.plan}
+                    {profile?.plan ?? '미정'}
                 </span>
                 <button
                     className="px-3 py-1.5 bg-slate-50 text-xs font-medium text-slate-500 transition-colors hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-signal-blue focus-visible:ring-offset-2"

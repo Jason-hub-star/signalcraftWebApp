@@ -1,8 +1,29 @@
 # Open Issues
 
-Last Updated: 2026-06-02
+Last Updated: 2026-06-05
 
 ## High Priority
+
+### QUERY_KEYS.userProfile → `['me']` 시맨틱 리네임 (후속)
+- **이슈**: Cloud Run `/me` 호출로 전환 후에도 쿼리 키가 `['user', 'profile']`로 남아 시맨틱 불일치
+- **영향**: 신규 작업자 혼동 가능. 캐시 정합성 자체는 OK (DashboardPage·ProfileCard 동일 키 사용)
+- **다음 액션**: `QUERY_KEYS.userProfile = ['me']`로 변경 + 2개 호출처 동시 갱신
+- **소유자**: Dev (후속 PR로 이관, 2026-06-05 자기리뷰 합의)
+
+### 외부 Cloud Run API 아쉬운 점 (External API Audit)
+- **이슈**: `signalcraft-api-*.asia-northeast3.run.app` 사양 감사 결과 8개 개선 항목 식별 — 상세는 `docs/ref/external-api-audit.md` 참조
+- **요약**:
+  - A1. 헤더 인증(`X-Auth-Id`) 임시방편 → JWT 전환 필요 (critical)
+  - A2. `/machines` 페이지네이션 부재 (high)
+  - A3. `period` enum 4개 고정 → from/to 쿼리로 일반화 (medium)
+  - A4. 필터/정렬 미지원 (medium)
+  - A5. API 버전 prefix(`/v1/`) 부재 (high)
+  - A6. 알림 상세 엔드포인트 부재 (medium)
+  - A7. 태그 영문/한글 혼용 (low)
+  - A8. 응답 메타데이터(server_time, request_id) 부재 (low)
+- **영향**: FE 통합 시 어댑터 레이어 + 헤더 주입 + enum 매핑 필요. 프로덕션 진입 전 A1/A2/A5 백엔드 보강 필수.
+- **다음 액션**: FE 통합은 어댑터 패턴으로 흡수하면서 백엔드 측에 A1/A2/A5 보강 요청
+- **소유자**: Dev (FE 통합) + 외부 API 팀 (BE 보강)
 
 ### 백엔드 `equipmentSummary.state` 매핑 의미 혼동
 - **이슈**: `backend/app/features/dashboard/router.py`의 `RUNTIME_TO_SUMMARY_STATE`가 건강도(GOOD/WARNING/DANGER) 기반으로 작동 상태(RUNNING/OFF)를 추정 — WARNING device는 OFF로 잘못 변환됨
@@ -17,11 +38,17 @@ Last Updated: 2026-06-02
 - **다음 액션**: Supabase `devices` 테이블 직접 조회 → 새 라인업으로 시드 마이그레이션
 - **소유자**: Dev
 
-### Railway/Vercel 환경변수 전환
-- **이슈**: 새 Supabase 프로젝트(`zlcnanvidrjgpuugbcou`)로 로컬 .env는 전환 완료, Railway/Vercel 환경변수는 수동 변경 필요
-- **영향**: 프로덕션에서 여전히 구 프로젝트를 바라보고 있음
-- **다음 액션**: Railway → `SUPABASE_URL` + `SUPABASE_KEY`, Vercel → `VITE_SUPABASE_URL` + `VITE_SUPABASE_ANON_KEY` 변경 후 재배포
+### Vercel 환경변수: Cloud Run base URL + X-Auth env 주입
+- **이슈**: Railway 폐기 + Cloud Run 전환 결정 (2026-06-05)에 따라 Vercel 환경변수 4종 등록 필요
+- **영향**: env 미설정 시 FE가 외부 API 호출 실패 → 빈 페이지/콘솔 에러
+- **다음 액션**: Vercel Project Settings → Environment Variables에 4종 등록
+  - `VITE_API_URL=https://signalcraft-api-55721952249.asia-northeast3.run.app`
+  - `VITE_X_AUTH_ID=poc_raven_0001` (스테이징)
+  - `VITE_X_AUTH_PROVIDER=demo_provider` (스테이징)
+  - `VITE_X_CUSTOMER_ID=12345678-1234-1234-1234-123456789012` (스테이징)
+  - 추가: `VITE_USE_MOCK_API=false` (Cloud Run 실호출 전환 시)
 - **소유자**: Dev
+- **상태**: Railway 관련 액션 폐기됨
 
 ### RLS 정책 추가 필요
 - **이슈**: `incidents`, `machine_event_logs`, `forecasts` 테이블에 SELECT RLS 정책 미설정 → anon key로 데이터 읽기 불가

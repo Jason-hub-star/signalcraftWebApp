@@ -1,13 +1,13 @@
 # SignalCraft Biz Master Plan
 
-기준일: 2026-05-27 (KST)
+기준일: 2026-06-05 (KST)
 프로젝트: SignalCraft Biz — 무설정 AI 시설 관리 솔루션
 협업 문서 경로: `ai-context`
 
 ## 1) 현재 상태
-- 현재 단계: **Phase 6 (Notifications) 진행 중**
-- 배포 상태: FE(Vercel) + BE(Railway) 운영 중
-- 제품 상태: 대시보드/리포트/알림설정/유지보수이력 구현 완료
+- 현재 단계: **Phase 7 (Cloud Run 백엔드 전환) 진행 중**
+- 배포 상태: FE(Vercel) + BE(Google Cloud Run, asia-northeast3) — Railway 폐기
+- 제품 상태: 대시보드/리포트/알림설정/유지보수이력 구현 완료, BE 단일화 진행 중
 
 ## 2) 문서 우선순위
 1. `ai-context/START-HERE.md`
@@ -26,7 +26,8 @@
 | Phase 3 | Frontend MVP | 완료 | React PWA, FCM 알림 등록 |
 | Phase 4 | Test & Tuning | 완료 | 실환경 테스트, 동적 Otsu 임계값 |
 | Phase 5 | Advanced UX | 완료 | 다크 모드, Toss 톤앤매너 |
-| Phase 6 | Notifications | 진행 중 | 알림 상세 설정 UI/API, 카카오톡 알림 |
+| Phase 6 | Notifications | 완료 | 알림 상세 설정 UI/API, 카카오톡 알림 |
+| Phase 7 | Cloud Run 전환 | 진행 중 | Railway BE 폐기, 외부 Cloud Run FastAPI 단일화 |
 
 ## 4) 최근 완료 항목 (2026-05-27)
 - Frontend 개발 목업 API 모드 전환 (`apiFetch` 단일 게이트웨이, 개발 모드 기본 mock)
@@ -49,11 +50,11 @@
 - Backend Fly.io → Railway 마이그레이션
 
 ## 5) 다음 우선순위
-1. Railway/Vercel 환경변수 변경 (새 Supabase 프로젝트로 전환)
-2. RLS 정책 점검 (incidents, machine_event_logs, forecasts 테이블 SELECT 정책 추가)
-3. Production 배포 검증 (알림시스템, 유지보수 이력)
-4. FCM 푸시 알림 실제 발송 테스트
-5. Backend API 안정성 점검
+1. **Cloud Run 전환** — FE의 apiFetch에 X-Auth-* 헤더 주입, `/me`·`/machines` shape 어댑팅 (Plan: `glimmering-seeking-harbor`)
+2. Vercel 환경변수 4종 등록 (`VITE_API_URL`, `VITE_X_AUTH_ID/PROVIDER/CUSTOMER_ID`)
+3. 외부 BE 백로그 8건(`docs/ref/external-api-audit.md`) 전달 — JWT 전환·페이지네이션·v1 prefix 등
+4. RLS 정책 점검 (incidents, machine_event_logs, forecasts 테이블 SELECT 정책)
+5. FCM 푸시 알림 실제 발송 테스트
 6. 리포트 공유 기능 안정화
 7. Frontend E2E 자동화 (Playwright)
 8. 다크 모드 구현

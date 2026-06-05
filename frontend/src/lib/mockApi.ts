@@ -1,5 +1,12 @@
 import type { Machine } from '@/components/features/dashboard/MachineCard';
 import { mockScenario } from './mockScenario';
+import type {
+    CloudRunMachineStatus,
+    MachineState,
+    MachinesResponse,
+    MeResponse,
+    OperationalState,
+} from './contracts/cloudRunApi';
 
 type NotificationSettings = {
     push_enabled: boolean;
@@ -67,6 +74,66 @@ const readBody = async (init?: RequestInit) => {
 };
 
 const machineById = (id: string | null) => machines.find((machine) => machine.id === id) || machines[0];
+
+const STATUS_TO_OPERATIONAL: Record<Machine['status'], OperationalState> = {
+    running: 'running',
+    warning: 'running',
+    error: 'error',
+};
+
+const STATUS_TO_CURRENT: Record<Machine['status'], MachineState> = {
+    running: 'normal',
+    warning: 'warning',
+    error: 'critical',
+};
+
+const toCloudRunMachine = (m: Machine): CloudRunMachineStatus => ({
+    machine_id: m.id,
+    machine_code: m.type,
+    label: m.name,
+    operational_state: STATUS_TO_OPERATIONAL[m.status],
+    operational_score: m.health,
+    current_state: STATUS_TO_CURRENT[m.status],
+    remaining_score: null,
+    active_alerts_count: m.status === 'error' ? 1 : 0,
+    sensor_online: m.status !== 'error',
+    updated_at: now.toISOString(),
+});
+
+const buildMeResponse = (): MeResponse => ({
+    user: {
+        id: '00000000-0000-0000-0000-000000000001',
+        email: mockScenario.userProfile.email,
+        name: mockScenario.userProfile.full_name,
+        phone: '010-0000-0000',
+        role: mockScenario.userProfile.role,
+        is_active: true,
+    },
+    customer: {
+        id: '12345678-1234-1234-1234-123456789012',
+        name: mockScenario.company.name,
+        is_active: true,
+    },
+    places: [
+        {
+            id: '00000000-0000-0000-0000-000000000010',
+            name: mockScenario.company.siteLabel,
+            sub_name: null,
+            address: null,
+            is_active: true,
+        },
+    ],
+    technicians: [
+        {
+            id: '00000000-0000-0000-0000-000000000020',
+            name: '담당 기술자',
+            phone: '010-1234-5678',
+            address: '',
+            is_primary: true,
+            is_active: true,
+        },
+    ],
+});
 
 const reportForMachine = (machine: Machine, dayOffset = 0) => {
     const health = Math.max(20, machine.health - dayOffset * 2);
@@ -144,8 +211,19 @@ export async function mockApiFetch(path: string, init?: RequestInit): Promise<Re
     const method = init?.method?.toUpperCase() || 'GET';
     const body = await readBody(init);
 
-    if (url.pathname === '/machines/') {
-        return jsonResponse({ machines });
+    if (url.pathname === '/machines' || url.pathname === '/machines/') {
+        const payload: MachinesResponse = {
+            machines: machines.map(toCloudRunMachine),
+        };
+        return jsonResponse(payload);
+    }
+
+    if (url.pathname === '/me') {
+        return jsonResponse(buildMeResponse());
+    }
+
+    if (url.pathname === '/health') {
+        return jsonResponse({});
     }
 
     if (url.pathname === '/dashboard/home') {
@@ -163,18 +241,6 @@ export async function mockApiFetch(path: string, init?: RequestInit): Promise<Re
             ...base,
             selectedPeriod: period,
             segments,
-        });
-    }
-
-    if (url.pathname === '/shared/user-profile/me') {
-        return jsonResponse({
-            user: {
-                email: mockScenario.userProfile.email,
-                full_name: mockScenario.userProfile.full_name,
-                role: mockScenario.userProfile.role,
-            },
-            device_count: machines.length,
-            plan: 'PRO',
         });
     }
 

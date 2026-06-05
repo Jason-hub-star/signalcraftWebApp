@@ -67,10 +67,7 @@
 ## Folder CLAUDE.md Map (주요)
 
 ### Backend
-| 폴더 | 핵심 내용 |
-|------|----------|
-| `backend/` | FastAPI 프로젝트 구조, Pydantic v2 |
-| `backend/app/` | Router/Service/Repository 계층 |
+> ⚠️ **DEPRECATED — 2026-06-05** — `backend/` 디렉토리는 Google Cloud Run 외부 서비스로 이관 완료. 코드는 rollback 대비로 잔존하되 신규 작업 금지. 외부 API 스펙은 `docs/ref/cloud-run-api-spec.md` 참조.
 
 ### Frontend
 | 폴더 | 핵심 내용 |
@@ -91,14 +88,14 @@
 
 ## Quick Commands
 - FE 빌드: `cd frontend && npm run build`
-- BE 컴파일 체크: `cd backend && python -m compileall app`
-- BE 실행: `cd backend && python main.py`
+- FE 타입 체크: `cd frontend && npx tsc --noEmit`
+- 외부 API 스펙 확인: `https://signalcraft-api-55721952249.asia-northeast3.run.app/docs`
 
 ## Tech Stack
 - **Frontend**: React 19, Vite, Tailwind CSS v4, Framer Motion, Lucide React
-- **Backend**: Python 3.x, FastAPI, Pydantic v2, Supabase SDK
+- **Backend (외부)**: Google Cloud Run (asia-northeast3) — FastAPI 서비스, 본 레포에서 관리하지 않음
 - **Database**: Supabase (PostgreSQL, RLS 활성화)
-- **Deployment**: Frontend(Vercel), Backend(Railway)
+- **Deployment**: Frontend(Vercel), Backend(Google Cloud Run — 별도 레포)
 
 ## Security Rules
 - Supabase RLS 정책 필수 (모든 테이블).

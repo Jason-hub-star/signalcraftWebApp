@@ -1,9 +1,20 @@
 # Project Status
 
-Last Updated: 2026-06-02
+Last Updated: 2026-06-05
 
 ## Current Phase
-- **Phase 6: Notifications** — 진행 중
+- **Phase 7: Cloud Run 백엔드 전환** — 진행 중 (Railway BE 완전 폐기)
+
+## Backend 전환 공지 (2026-06-05)
+- 본 레포 `backend/`(Railway 배포)는 **DEPRECATED**. 외부 Google Cloud Run FastAPI로 단일화.
+- 활성 백엔드: `signalcraft-api-*.asia-northeast3.run.app` (스펙: `docs/ref/cloud-run-api-spec.md`)
+- 외부 API 감사 결과 & 백로그: `docs/ref/external-api-audit.md`
+- **Opus 자기리뷰 후속 수정 (2026-06-05)**:
+  - MachinePage 응답 envelope shape 복원 (캐시 type narrowing 회피)
+  - `UserProfile.device_count`/`plan` → optional, ProfileCard에서 "미정" 분기
+  - mockApi의 `/shared/user-profile/me` legacy alias 제거 (dead code)
+  - `machineStateAdapter`의 health 계산에서 `remaining_score` 폴백 제거 (의미 부정합)
+  - **유보**: `QUERY_KEYS.userProfile` → `['me']` 시맨틱 리네임 (후속 PR)
 
 ## Feature Status
 
@@ -27,8 +38,9 @@ Last Updated: 2026-06-02
 
 ## Deployment
 - Frontend: Vercel (signalcraft-web-app.vercel.app)
-- Backend: Railway (signalcraft-api)
+- Backend: **Google Cloud Run** (asia-northeast3) — `signalcraft-api-55721952249.asia-northeast3.run.app` *(외부 레포 관리)*
 - Database: Supabase (PostgreSQL) — **프로젝트: `zlcnanvidrjgpuugbcou` (signalcraft)**
+- ~~Railway (signalcraft-api)~~ — 폐기 (2026-06-05)
 
 ## DB Seed Data Status
 

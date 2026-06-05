@@ -2,6 +2,7 @@
 node_modules/
 .env
 .env.*
+!.env.example
 dist/
 build/
 *.log
@@ -13,19 +14,22 @@ frontend/node_modules/
 frontend/dist/
 frontend/.env
 frontend/.env.local
+frontend/dev-dist/
 
 # Backend (Python)
-backend/__pycache__/
+**/__pycache__/
 backend/venv/
 backend/.venv/
 backend/*.pyc
 
-# Agent & MCP
+# Agent & MCP & tooling artifacts
 .agent/
 .agent/skills/react-vite-best-practices/
 .gemini/
 mcp_config.json
 .mcp.json
+.codex-artifacts/
+.playwright-mcp/
 
 # Design
 design/*.html.tmp

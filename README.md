@@ -15,7 +15,7 @@ graph TB
     Dash["직관적 대시보드<br/>(3-State Logic)"]
   end
 
-  subgraph Server["⚙️ Backend (Python / Fly.io)"]
+  subgraph Server["⚙️ Backend (Python / Google Cloud Run)"]
     direction TB
     API["FastAPI 벡엔드<br/>Numba 최적화"]
     subgraph Engine["Analysis Engine"]
@@ -210,7 +210,7 @@ mindmap
       TimeScaleDB Pattern (JSONB)
     Device & Infra
       ESP32 (C++)
-      Fly.io (Docker 배포)
+      Google Cloud Run (asia-northeast3, BE)
       Vercel (FE 호스팅)
 ```
 

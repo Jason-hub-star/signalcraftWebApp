@@ -1,8 +1,8 @@
 # 프로젝트 컨텍스트 (SignalCraft Biz)
 
-기준일: 2026-03-16 (KST)
+기준일: 2026-06-05 (KST)
 프로젝트명: SignalCraft Biz
-현재 단계: Phase 6 (Notifications) 진행 중
+현재 단계: Phase 7 (Cloud Run 백엔드 전환) 진행 중
 
 ## 1) 한 줄 정의
 설치 후 전원만 켜면 AI가 24시간 환경을 학습하고, 매일 아침 영수증 형태의 요약 리포트를 제공하는 무설정 AI 시설 관리 솔루션.
@@ -59,8 +59,9 @@
 
 ## 10) 배포 정보
 - Frontend: Vercel (signalcraft-web-app.vercel.app)
-- Backend: Railway (signalcraft-api)
+- Backend: **Google Cloud Run** (asia-northeast3) — `signalcraft-api-55721952249.asia-northeast3.run.app` *(외부 레포)*
 - Database: Supabase — 프로젝트 `zlcnanvidrjgpuugbcou` (signalcraft, ap-northeast-2)
+- 폐기: ~~Railway~~ (2026-06-05)
 
 ## 11) 비기능/운영 원칙
 - mutation 후 무효화는 대상 key만 정밀 invalidation

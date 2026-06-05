@@ -1,8 +1,16 @@
+// QUERY_KEYS — TanStack Query 키 단일 팩토리.
+// Cloud Run 활성 / mock-only 구분은 주석으로 명시.
+
 export const QUERY_KEYS = {
-    machines: ['machines'] as const,
+    // ── Cloud Run 활성 ──────────────────────────────
+    machines: ['machines'] as const, // GET /machines
+    userProfile: ['user', 'profile'] as const, // GET /me
+    machineDetail: (machineId: string, period: string) =>
+        ['machine-detail', machineId, period] as const, // GET /machines/{id}?period=
+
+    // ── Mock 전용 (Cloud Run 미제공) ────────────────
     notifications: ['notifications'] as const,
     notificationSettings: ['settings', 'notifications'] as const,
-    userProfile: ['user', 'profile'] as const,
     dashboardHome: ['dashboard', 'home'] as const,
     equipmentUsage: (period: string, machineId?: string) =>
         ['dashboard', 'equipment-usage', period, machineId ?? null] as const,

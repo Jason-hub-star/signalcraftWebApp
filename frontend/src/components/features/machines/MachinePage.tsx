@@ -11,6 +11,8 @@ import { cn } from '../../../lib/utils';
 import { apiFetch } from '@/lib/api';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { chartTokens, classTokens, effects } from '@/styles/tokens';
+import type { MachinesResponse } from '@/lib/contracts/cloudRunApi';
+import { cloudRunMachineToMachine } from '@/lib/contracts/machineStateAdapter';
 
 export function MachinePage() {
     const [searchTerm, setSearchTerm] = useState('');
@@ -22,13 +24,14 @@ export function MachinePage() {
     const { data, isPending, error } = useQuery<{ machines: Machine[] }>({
         queryKey: QUERY_KEYS.machines,
         queryFn: async () => {
-            const response = await apiFetch('/machines/');
+            const response = await apiFetch('/machines');
             if (!response.ok) throw new Error('설비 목록을 불러오는데 실패했습니다.');
-            return response.json();
+            const raw = (await response.json()) as MachinesResponse;
+            return { machines: raw.machines.map(cloudRunMachineToMachine) };
         },
     });
 
-    const machines = data?.machines || [];
+    const machines = data?.machines ?? [];
 
     const filteredMachines = useMemo(() => {
         return machines.filter(machine => {

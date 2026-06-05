@@ -14,12 +14,11 @@ import { apiFetch } from '@/lib/api';
 import { mockScenario } from '@/lib/mockScenario';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import type { DashboardHome, HomePeriod } from '@/lib/contracts/dashboardHome';
-
-interface UserProfile {
-    user: {
-        full_name: string;
-    };
-}
+import type { MeResponse } from '@/lib/contracts/cloudRunApi';
+import {
+    meResponseToUserProfile,
+    type UserProfile,
+} from '@/lib/contracts/userProfileAdapter';
 
 type HelpSection = 'status' | 'summary' | 'equipment' | null;
 
@@ -68,9 +67,10 @@ export function DashboardPage() {
     const { data: profile } = useQuery<UserProfile>({
         queryKey: QUERY_KEYS.userProfile,
         queryFn: async () => {
-            const response = await apiFetch('/shared/user-profile/me');
+            const response = await apiFetch('/me');
             if (!response.ok) throw new Error('프로필 로딩 실패');
-            return response.json();
+            const me = (await response.json()) as MeResponse;
+            return meResponseToUserProfile(me);
         },
     });
 
