@@ -1,11 +1,12 @@
 import { isMockApiEnabled, mockApiFetch } from './mockApi';
+import { getRuntimeConfigValue } from './runtimeConfig';
 
 const normalizePath = (path: string) => (path.startsWith('/') ? path : `/${path}`);
 
 const buildAuthHeaders = (): Record<string, string> => {
-    const authId = import.meta.env.VITE_X_AUTH_ID;
-    const provider = import.meta.env.VITE_X_AUTH_PROVIDER;
-    const customerId = import.meta.env.VITE_X_CUSTOMER_ID;
+    const authId = getRuntimeConfigValue('VITE_X_AUTH_ID');
+    const provider = getRuntimeConfigValue('VITE_X_AUTH_PROVIDER');
+    const customerId = getRuntimeConfigValue('VITE_X_CUSTOMER_ID');
 
     if (!authId || !provider || !customerId) {
         throw new Error(
@@ -37,7 +38,7 @@ export async function apiFetch(path: string, init?: RequestInit): Promise<Respon
         return mockApiFetch(normalizedPath, init);
     }
 
-    const baseUrl = import.meta.env.VITE_API_URL;
+    const baseUrl = getRuntimeConfigValue('VITE_API_URL');
     if (!baseUrl) {
         throw new Error('VITE_API_URL이 설정되지 않았습니다.');
     }

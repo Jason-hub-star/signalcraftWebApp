@@ -1,5 +1,5 @@
-// Cloud Run API contract — SignalCraft API (staging) v0.0.1
-// Source: https://signalcraft-api-55721952249.asia-northeast3.run.app/openapi.json
+// Cloud Run API contract — SignalCraft Serving API (staging) v0.0.1
+// Source: https://v1.api.stag.serving.signalcraft.kr/openapi.json
 // 본 파일은 외부 API 응답 타입의 단일 SoT. 변경 시 cloud-run-api-spec.md도 동기화.
 
 export const OPERATIONAL_STATES = ['running', 'stopped', 'error', 'unknown'] as const;
@@ -45,7 +45,23 @@ export type MachinesResponse = {
 
 export type MachineDetailResponse = {
     machine_id: string;
+    machine_code: string;
+    label: string | null;
+    place_id: string;
+    operational_state: OperationalState;
+    operational_score: number | null;
+    current_state: MachineState;
+    remaining_score: number | null;
+    active_alerts_count: number;
+    sensor_online: boolean;
+    status_updated_at: string | null;
+    // recorded_at 내림차순, 최대 5,000건
     machine_status_history: CloudRunMachineStatusHistoryPoint[];
+};
+
+export type PlaceMachinesResponse = {
+    place_id: string;
+    machines: CloudRunMachineStatus[];
 };
 
 export type UserInfo = {

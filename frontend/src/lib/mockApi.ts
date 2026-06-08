@@ -1,12 +1,18 @@
 import type { Machine } from '@/components/features/dashboard/MachineCard';
 import { mockScenario } from './mockScenario';
+import { getRuntimeConfigValue } from './runtimeConfig';
 import type {
     CloudRunMachineStatus,
+    CloudRunMachineStatusHistoryPoint,
+    MachineDetailResponse,
     MachineState,
     MachinesResponse,
     MeResponse,
     OperationalState,
+    PlaceMachinesResponse,
+    PeriodEnum,
 } from './contracts/cloudRunApi';
+import { PERIOD_VALUES } from './contracts/cloudRunApi';
 
 type NotificationSettings = {
     push_enabled: boolean;
@@ -31,7 +37,7 @@ const isoDaysAgo = (days: number) => new Date(now.getTime() - days * 24 * 60 * 6
 const isoDaysFromNow = (days: number) => new Date(now.getTime() + days * 24 * 60 * 60 * 1000).toISOString();
 
 export const isMockApiEnabled = () => {
-    const flag = import.meta.env.VITE_USE_MOCK_API;
+    const flag = getRuntimeConfigValue('VITE_USE_MOCK_API');
     return flag !== 'false';
 };
 
@@ -87,6 +93,8 @@ const STATUS_TO_CURRENT: Record<Machine['status'], MachineState> = {
     error: 'critical',
 };
 
+const MOCK_PLACE_ID = '00000000-0000-0000-0000-000000000010';
+
 const toCloudRunMachine = (m: Machine): CloudRunMachineStatus => ({
     machine_id: m.id,
     machine_code: m.type,
@@ -100,6 +108,53 @@ const toCloudRunMachine = (m: Machine): CloudRunMachineStatus => ({
     updated_at: now.toISOString(),
 });
 
+const HISTORY_POINTS_BY_PERIOD: Record<PeriodEnum, number> = {
+    '24h': 24,
+    '3d': 36,
+    '5d': 60,
+    '7d': 84,
+};
+
+const isPeriodEnum = (value: string | null): value is PeriodEnum =>
+    value !== null && (PERIOD_VALUES as readonly string[]).includes(value);
+
+const buildHistoryForMachine = (
+    m: Machine,
+    period: PeriodEnum
+): CloudRunMachineStatusHistoryPoint[] => {
+    const count = HISTORY_POINTS_BY_PERIOD[period];
+    const baseOpScore = STATUS_TO_OPERATIONAL[m.status] === 'running' ? 0.9 : 0.4;
+    const points: CloudRunMachineStatusHistoryPoint[] = [];
+
+    for (let i = 0; i < count; i += 1) {
+        const drift = ((i % 5) - 2) * 0.02;
+        points.push({
+            id: `history-${m.id}-${i}`,
+            operational_state: STATUS_TO_OPERATIONAL[m.status],
+            operational_score: Math.max(0, Math.min(1, baseOpScore + drift)),
+            current_state: STATUS_TO_CURRENT[m.status],
+            recorded_at: isoHoursAgo(i),
+        });
+    }
+
+    return points;
+};
+
+const toMachineDetail = (m: Machine, period: PeriodEnum): MachineDetailResponse => ({
+    machine_id: m.id,
+    machine_code: m.type,
+    label: m.name,
+    place_id: MOCK_PLACE_ID,
+    operational_state: STATUS_TO_OPERATIONAL[m.status],
+    operational_score: m.health,
+    current_state: STATUS_TO_CURRENT[m.status],
+    remaining_score: null,
+    active_alerts_count: m.status === 'error' ? 1 : 0,
+    sensor_online: m.status !== 'error',
+    status_updated_at: now.toISOString(),
+    machine_status_history: buildHistoryForMachine(m, period),
+});
+
 const buildMeResponse = (): MeResponse => ({
     user: {
         id: '00000000-0000-0000-0000-000000000001',
@@ -110,13 +165,13 @@ const buildMeResponse = (): MeResponse => ({
         is_active: true,
     },
     customer: {
-        id: '12345678-1234-1234-1234-123456789012',
+        id: '12d5e33c-405a-4856-bf8e-51fc899c1737',
         name: mockScenario.company.name,
         is_active: true,
     },
     places: [
         {
-            id: '00000000-0000-0000-0000-000000000010',
+            id: MOCK_PLACE_ID,
             name: mockScenario.company.siteLabel,
             sub_name: null,
             address: null,
@@ -213,6 +268,41 @@ export async function mockApiFetch(path: string, init?: RequestInit): Promise<Re
 
     if (url.pathname === '/machines' || url.pathname === '/machines/') {
         const payload: MachinesResponse = {
+            machines: machines.map(toCloudRunMachine),
+        };
+        return jsonResponse(payload);
+    }
+
+    const machineDetailMatch = url.pathname.match(/^\/machines\/([^/]+)\/?$/);
+    if (machineDetailMatch) {
+        const rawPeriod = url.searchParams.get('period');
+        if (!isPeriodEnum(rawPeriod)) {
+            return jsonResponse(
+                { detail: "period 쿼리는 '24h' | '3d' | '5d' | '7d' 중 하나여야 합니다." },
+                { status: 422 }
+            );
+        }
+        const machine = machines.find((m) => m.id === machineDetailMatch[1]);
+        if (!machine) {
+            return jsonResponse(
+                { detail: '해당 머신을 찾을 수 없습니다.' },
+                { status: 404 }
+            );
+        }
+        return jsonResponse(toMachineDetail(machine, rawPeriod));
+    }
+
+    const placeMachinesMatch = url.pathname.match(/^\/places\/([^/]+)\/machines\/?$/);
+    if (placeMachinesMatch) {
+        const placeId = placeMachinesMatch[1];
+        if (placeId !== MOCK_PLACE_ID) {
+            return jsonResponse(
+                { detail: '해당 현장을 찾을 수 없습니다.' },
+                { status: 404 }
+            );
+        }
+        const payload: PlaceMachinesResponse = {
+            place_id: placeId,
             machines: machines.map(toCloudRunMachine),
         };
         return jsonResponse(payload);

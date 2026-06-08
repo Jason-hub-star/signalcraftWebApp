@@ -1,20 +1,36 @@
 # Project Status
 
-Last Updated: 2026-06-05
+Last Updated: 2026-06-08
 
 ## Current Phase
-- **Phase 7: Cloud Run 백엔드 전환** — 진행 중 (Railway BE 완전 폐기)
+- **Phase 7: Cloud Run 전환** — 진행 중 (Railway BE 완전 폐기, FE Cloud Run 호스팅 이전 준비)
 
-## Backend 전환 공지 (2026-06-05)
-- 본 레포 `backend/`(Railway 배포)는 **DEPRECATED**. 외부 Google Cloud Run FastAPI로 단일화.
-- 활성 백엔드: `signalcraft-api-*.asia-northeast3.run.app` (스펙: `docs/ref/cloud-run-api-spec.md`)
+## Backend 전환 공지 (2026-06-05, 2026-06-08 갱신)
+- 본 레포 `backend/`(Railway 배포)는 **DEPRECATED**. 외부 FastAPI를 호출하며, FE 호스팅은 Vercel에서 Cloud Run으로 이전 준비.
+- **활성 API**: `https://v1.api.stag.serving.signalcraft.kr` (2026-06-08 OpenAPI 검증 완료, Swagger: `/docs`)
+- 활성 스펙: `docs/ref/cloud-run-api-spec.md`
 - 외부 API 감사 결과 & 백로그: `docs/ref/external-api-audit.md`
-- **Opus 자기리뷰 후속 수정 (2026-06-05)**:
-  - MachinePage 응답 envelope shape 복원 (캐시 type narrowing 회피)
-  - `UserProfile.device_count`/`plan` → optional, ProfileCard에서 "미정" 분기
-  - mockApi의 `/shared/user-profile/me` legacy alias 제거 (dead code)
-  - `machineStateAdapter`의 health 계산에서 `remaining_score` 폴백 제거 (의미 부정합)
-  - **유보**: `QUERY_KEYS.userProfile` → `['me']` 시맨틱 리네임 (후속 PR)
+- FE Cloud Run 배포 문서: `docs/ref/cloud-run-frontend-deployment.md`
+- 구 mock URL 시절 메모: `docs/archive/2026-06-08/cloud-run-mock-spec.md`
+
+### 2026-06-08 드리프트 픽스 완료 (Phase 1~5)
+- ✅ Phase 1: `MachineDetailResponse` 2필드 → 12필드 확장, `PlaceMachinesResponse` 신설, `VITE_PLACE_ID` env 신설, `.env.example` 자격 갱신
+- ✅ Phase 2: `QUERY_KEYS.placeMachines(placeId)` 추가, `mockApi` 에 `/places/{id}/machines` & `/machines/{id}` 핸들러 신설 (period 검증 + 404)
+- ✅ Phase 3: `cloud-run-api-spec.md` 전면 재작성 (활성 라벨, 에러 코드 5종, 정렬 규칙, 5000건 limit), `external-api-audit.md` / `cloud-run-frontend-deployment.md` / `OPEN-ISSUES.md` 동기화
+- ✅ Phase 4: `docs/archive/2026-06-08/cloud-run-mock-spec.md` + `backend-railway-residue.md` 신설, root `CLAUDE.md` stale 라인 갱신
+- ✅ Phase 5: PROJECT-STATUS + daily log 동기화
+
+### 다음 우선순위
+- Cloud Run FE 컨테이너 실배포 검증 (`VITE_PLACE_ID` 포함 6종 env 등록)
+- 외부 API JWT/Bearer 전환 (현 헤더 인증은 PoC, `external-api-audit.md` A1)
+- `/machines` 페이지네이션 도입 (`external-api-audit.md` A2)
+- `QUERY_KEYS.userProfile` → `['me']` 시맨틱 리네임 (유보 중)
+
+### Opus 자기리뷰 후속 수정 (2026-06-05)
+- MachinePage 응답 envelope shape 복원 (캐시 type narrowing 회피)
+- `UserProfile.device_count`/`plan` → optional, ProfileCard에서 "미정" 분기
+- mockApi의 `/shared/user-profile/me` legacy alias 제거 (dead code)
+- `machineStateAdapter`의 health 계산에서 `remaining_score` 폴백 제거 (의미 부정합)
 
 ## Feature Status
 
@@ -37,8 +53,8 @@ Last Updated: 2026-06-05
 | 홈 화면 OCR HOME-001 재배치 | 완료 | 9/9. 핀치 줌(#6) 포함 완료(native touch). PR2 레거시 제거 완료. 모바일 실기기 핀치 테스트만 남음 |
 
 ## Deployment
-- Frontend: Vercel (signalcraft-web-app.vercel.app)
-- Backend: **Google Cloud Run** (asia-northeast3) — `signalcraft-api-55721952249.asia-northeast3.run.app` *(외부 레포 관리)*
+- Frontend: Vercel 기존 운영 → **Google Cloud Run 정적 컨테이너 이전 준비**
+- API: 외부 FastAPI — **활성** `https://v1.api.stag.serving.signalcraft.kr` (2026-06-08 OpenAPI 확인). Swagger: `/docs`
 - Database: Supabase (PostgreSQL) — **프로젝트: `zlcnanvidrjgpuugbcou` (signalcraft)**
 - ~~Railway (signalcraft-api)~~ — 폐기 (2026-06-05)
 

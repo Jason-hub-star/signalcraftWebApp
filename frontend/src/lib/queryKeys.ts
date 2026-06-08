@@ -7,6 +7,8 @@ export const QUERY_KEYS = {
     userProfile: ['user', 'profile'] as const, // GET /me
     machineDetail: (machineId: string, period: string) =>
         ['machine-detail', machineId, period] as const, // GET /machines/{id}?period=
+    placeMachines: (placeId: string) =>
+        ['places', placeId, 'machines'] as const, // GET /places/{place_id}/machines
 
     // ── Mock 전용 (Cloud Run 미제공) ────────────────
     notifications: ['notifications'] as const,

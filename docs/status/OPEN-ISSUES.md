@@ -1,6 +1,6 @@
 # Open Issues
 
-Last Updated: 2026-06-05
+Last Updated: 2026-06-08
 
 ## High Priority
 
@@ -38,17 +38,18 @@ Last Updated: 2026-06-05
 - **다음 액션**: Supabase `devices` 테이블 직접 조회 → 새 라인업으로 시드 마이그레이션
 - **소유자**: Dev
 
-### Vercel 환경변수: Cloud Run base URL + X-Auth env 주입
-- **이슈**: Railway 폐기 + Cloud Run 전환 결정 (2026-06-05)에 따라 Vercel 환경변수 4종 등록 필요
-- **영향**: env 미설정 시 FE가 외부 API 호출 실패 → 빈 페이지/콘솔 에러
-- **다음 액션**: Vercel Project Settings → Environment Variables에 4종 등록
-  - `VITE_API_URL=https://signalcraft-api-55721952249.asia-northeast3.run.app`
+### FE Cloud Run 환경변수 + 새 API 도메인 활성화 확인
+- **이슈**: Vercel 호스팅 웹앱을 Cloud Run으로 이전하면서 런타임 환경변수 등록 필요
+- **영향**: Cloud Run runtime env 미설정 시 FE가 외부 API 호출 실패
+- **다음 액션**: Cloud Run service environment variables에 6종 등록
+  - `VITE_API_URL=https://v1.api.stag.serving.signalcraft.kr`
+  - `VITE_USE_MOCK_API=false` (실호출 전환 시)
   - `VITE_X_AUTH_ID=poc_raven_0001` (스테이징)
   - `VITE_X_AUTH_PROVIDER=demo_provider` (스테이징)
-  - `VITE_X_CUSTOMER_ID=12345678-1234-1234-1234-123456789012` (스테이징)
-  - 추가: `VITE_USE_MOCK_API=false` (Cloud Run 실호출 전환 시)
+  - `VITE_X_CUSTOMER_ID=12d5e33c-405a-4856-bf8e-51fc899c1737` (스테이징)
+  - `VITE_PLACE_ID=b33f995b-0e79-4551-afc4-e0c79238a18a` (default path param)
 - **소유자**: Dev
-- **상태**: Railway 관련 액션 폐기됨
+- **상태**: 2026-06-08 staging API 활성 확인. OpenAPI 스펙 검증 완료. Cloud Run 환경변수 등록만 남음.
 
 ### RLS 정책 추가 필요
 - **이슈**: `incidents`, `machine_event_logs`, `forecasts` 테이블에 SELECT RLS 정책 미설정 → anon key로 데이터 읽기 불가
@@ -60,12 +61,6 @@ Last Updated: 2026-06-05
 - **이슈**: 최근 배포된 기능 검증 미완료 (알림시스템, 날짜수정, 유지보수 이력)
 - **영향**: 프로덕션 환경에서 기능 정상 작동 확인 필요
 - **다음 액션**: Vercel 사이트 접속 → 알림 설정/유지보수 이력 테스트
-- **소유자**: Dev
-
-### Backend API 안정성
-- **이슈**: Railway 배포 환경에서의 API 응답 안정성 확인 필요
-- **영향**: Frontend-Backend 통신 지연 또는 에러 가능
-- **다음 액션**: API 엔드포인트별 응답 테스트
 - **소유자**: Dev
 
 ## Medium Priority

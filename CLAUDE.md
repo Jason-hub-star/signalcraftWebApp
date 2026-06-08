@@ -89,13 +89,13 @@
 ## Quick Commands
 - FE 빌드: `cd frontend && npm run build`
 - FE 타입 체크: `cd frontend && npx tsc --noEmit`
-- 외부 API 스펙 확인: `https://signalcraft-api-55721952249.asia-northeast3.run.app/docs`
+- 외부 API 확인: 활성 staging `https://v1.api.stag.serving.signalcraft.kr/docs` (Swagger UI)
 
 ## Tech Stack
 - **Frontend**: React 19, Vite, Tailwind CSS v4, Framer Motion, Lucide React
 - **Backend (외부)**: Google Cloud Run (asia-northeast3) — FastAPI 서비스, 본 레포에서 관리하지 않음
 - **Database**: Supabase (PostgreSQL, RLS 활성화)
-- **Deployment**: Frontend(Vercel), Backend(Google Cloud Run — 별도 레포)
+- **Deployment**: Frontend(Vercel 기존 운영 → Cloud Run 이전 준비), API(Google Cloud Run/외부 FastAPI — 별도 레포)
 
 ## Security Rules
 - Supabase RLS 정책 필수 (모든 테이블).
