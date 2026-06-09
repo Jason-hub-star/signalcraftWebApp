@@ -1,8 +1,10 @@
 import { useCallback, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AnimatePresence } from 'framer-motion';
-import { Loader2 } from 'lucide-react';
+import { Activity, Loader2 } from 'lucide-react';
 import { Header } from '../../shared/Header';
+import { BottomNav } from '../../shared/BottomNav';
+import { EndpointPending } from '../../shared/EndpointPending';
 import { EntrySplash } from './home/EntrySplash';
 import { HomeGreeting } from './home/HomeGreeting';
 import { StatusOverviewSection } from './home/StatusOverviewSection';
@@ -11,6 +13,7 @@ import { EquipmentUsageSection } from './home/EquipmentUsageSection';
 import { MaintenanceCallButton } from './home/MaintenanceCallButton';
 import { HelpOverlay } from './home/HelpOverlay';
 import { apiFetch } from '@/lib/api';
+import { throwIfNotOk, getEndpointPendingMode } from '@/lib/apiErrorHelper';
 import { mockScenario } from '@/lib/mockScenario';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import type { DashboardHome, HomePeriod } from '@/lib/contracts/dashboardHome';
@@ -67,8 +70,7 @@ export function DashboardPage() {
     const { data: profile } = useQuery<UserProfile>({
         queryKey: QUERY_KEYS.userProfile,
         queryFn: async () => {
-            const response = await apiFetch('/me');
-            if (!response.ok) throw new Error('프로필 로딩 실패');
+            const response = await throwIfNotOk(await apiFetch('/me'), '/me');
             const me = (await response.json()) as MeResponse;
             return meResponseToUserProfile(me);
         },
@@ -77,8 +79,10 @@ export function DashboardPage() {
     const { data: home, isPending: isHomeLoading, error: homeError } = useQuery<DashboardHome>({
         queryKey: QUERY_KEYS.dashboardHome,
         queryFn: async () => {
-            const response = await apiFetch('/dashboard/home');
-            if (!response.ok) throw new Error('홈 데이터 로딩 실패');
+            const response = await throwIfNotOk(
+                await apiFetch('/dashboard/home'),
+                '/dashboard/home'
+            );
             return response.json();
         },
         refetchInterval: 10 * 60 * 1000,
@@ -95,9 +99,13 @@ export function DashboardPage() {
                         <p className="font-medium text-sm">홈 데이터를 불러오는 중이에요</p>
                     </div>
                 ) : homeError || !home ? (
-                    <div className="mx-6 p-6 bg-danger/10 text-danger text-center" style={{ borderRadius: 'var(--radius-md)' }}>
-                        <p className="font-medium text-sm">홈 데이터를 불러오지 못했어요</p>
-                        <p className="text-xs opacity-80 mt-1">잠시 후 다시 시도해 주세요</p>
+                    <div className="mx-6">
+                        <EndpointPending
+                            title="대시보드 데이터를 준비 중이에요"
+                            description="설비 정보를 불러오고 있어요. 잠시 후 다시 시도해 주세요."
+                            icon={Activity}
+                            mode={getEndpointPendingMode(homeError)}
+                        />
                     </div>
                 ) : (
                     <>
@@ -135,6 +143,8 @@ export function DashboardPage() {
                     </>
                 )}
             </main>
+
+            <BottomNav />
 
             <HelpOverlay
                 isOpen={helpSection !== null}

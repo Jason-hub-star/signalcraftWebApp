@@ -41,6 +41,25 @@ export const isMockApiEnabled = () => {
     return flag !== 'false';
 };
 
+// 백엔드 엔드포인트가 신 staging에서 활성화되는 순서대로 아래 set에 path 추가.
+// 추가된 path는 mock을 건너뛰고 실 API로 fall-through 됨 → 점진 전환.
+// 비교는 정확한 path 매칭 (query string 제외). prefix/sub-path 자동 포함 X:
+//   - '/notifications/' 만 set 에 있으면 '/notifications/123/read' 는 여전히 mock 사용.
+//   - sub-path도 전환하려면 별도 명시 또는 path 패턴 매칭 로직 확장 필요.
+// 예) 알림 메인 활성화: '/notifications/' 만 추가하면 목록만 실 API.
+const ENDPOINTS_DISABLED_IN_MOCK = new Set<string>([
+    // 백엔드 완성 순서대로 주석 해제:
+    // '/notifications/',
+    // '/notifications/settings',
+    // '/reports/',
+    // '/dashboard/home',
+]);
+
+export const isMockApiEnabledForEndpoint = (path: string): boolean => {
+    if (!isMockApiEnabled()) return false;
+    return !ENDPOINTS_DISABLED_IN_MOCK.has(path);
+};
+
 const machines: Machine[] = mockScenario.machines;
 
 let notificationSettings: NotificationSettings = {

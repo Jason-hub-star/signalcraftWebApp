@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { throwIfNotOk } from '@/lib/apiErrorHelper';
 import { Bell, Lock, FileText, LogOut, Moon } from 'lucide-react';
 import { motion, Variants } from 'framer-motion';
 import { BottomNav } from '../../shared/BottomNav';
@@ -46,10 +47,13 @@ export function SettingsPage() {
     const { data: settings, isLoading } = useQuery<NotificationSettings>({
         queryKey: QUERY_KEYS.notificationSettings,
         queryFn: async () => {
-            const response = await apiFetch('/notifications/settings');
-            if (!response.ok) throw new Error('알림 설정 로드 실패');
+            const response = await throwIfNotOk(
+                await apiFetch('/notifications/settings'),
+                '/notifications/settings'
+            );
             return response.json();
-        }
+        },
+        retry: false,
     });
 
     const updateSettingsMutation = useMutation({

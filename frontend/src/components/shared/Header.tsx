@@ -6,6 +6,7 @@ import { UserProfileModal } from './UserProfileModal';
 import { usePWAInstall } from '@/lib/usePWAInstall';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
+import { throwIfNotOk } from '@/lib/apiErrorHelper';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { effects } from '@/styles/tokens';
 import signalCraftLogo from '@/assets/signalcraft-logo.png';
@@ -15,13 +16,14 @@ export function Header() {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const { isInstallable, isInstalled, isIOS, installPWA } = usePWAInstall();
 
+    // 알림 엔드포인트가 아직 준비 안 됐으면 (404) 뱃지 숨김으로 silent 폴백.
     const { data } = useQuery({
         queryKey: QUERY_KEYS.notifications,
         queryFn: async () => {
-            const response = await apiFetch('/notifications/');
-            if (!response.ok) throw new Error('알림 로딩 실패');
+            const response = await throwIfNotOk(await apiFetch('/notifications/'), '/notifications/');
             return response.json();
         },
+        retry: false,
     });
 
     const unreadCount = data?.notifications?.filter((n: any) => !n.isRead).length || 0;

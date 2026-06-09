@@ -96,3 +96,71 @@
 - 외부 API JWT/Bearer 전환 (audit A1).
 - `/machines` 페이지네이션 (audit A2).
 - `QUERY_KEYS.userProfile` → `['me']` 시맨틱 리네임 (유보 중).
+
+---
+
+## PHASE-LOOP 2 — Fallback UI Infrastructure + Per-Endpoint Mock Override (2026-06-08)
+
+### Context
+첫 phase-loop (drift fix) 완료 후 운영 사이트 자동 검증 결과 mock 모드 회귀 0건. 다만 `VITE_USE_MOCK_API=false` 한 줄로 실 API 전환 시 신 staging에 없는 endpoint 9개가 한 번에 깨질 위험. 점진 전환 가능하도록 폴백 UI 인프라 + per-endpoint override 도입.
+
+### Phase 1 — 폴백 컴포넌트 + 에러 헬퍼
+- `src/components/shared/EndpointPending.tsx` (new) — 3-mode (preparing/empty/error), Tailwind classTokens + Framer Motion + aria-live.
+- `src/lib/apiErrorHelper.ts` (new) — `ApiError` class, `isApiPendingStatus`, `getEndpointPendingMode`, `throwIfNotOk`.
+- 검증: tsc 0 errors. Opus 자기리뷰 10/10 PASS.
+
+### Phase 2 — 로컬 dev 서버 + agent-browser 자동 검증
+- 임시 `.env.local`에 `VITE_USE_MOCK_API=false` + 신 staging 자격 작성.
+- `npm run dev` 백그라운드, agent-browser 세션 `sc-fb`로 4페이지 순회.
+- 결과: console.error 0건, unhandledrejection 0건. 신 staging 404: `/notifications/`, `/notifications/settings`, `/me`(예상 외, 자격 확인 후속 필요).
+- 페이지별: `/dashboard` 기존 빨간 박스 폴백 / `/machines` 200 응답이지만 label sparse / `/report` "리포트 없음" 폴백 정상 / `/settings` "사용자 님" 폴백 정상.
+- 사전 식별 9개 회귀 페이지와 실제 결과 매칭, 신규 회귀 발견 없음.
+- `.env.local` 삭제, 세션 종료.
+- Opus 자기리뷰 10/10 PASS (조건부 — Dashboard layout 보존 검토는 Phase 3 자체 진단으로 보강).
+
+### Phase 3 — 페이지별 폴백 통일 적용 (8개 페이지)
+- DashboardPage — `/me`, `/dashboard/home` throwIfNotOk + Activity 아이콘 EndpointPending.
+- AnalysisTab — TrendingDown 아이콘.
+- SmartLogTab — FileText 아이콘.
+- MaintenanceTab — Wrench 아이콘, error 변수 신설.
+- NotificationModal — Bell 아이콘.
+- Header (알림 뱃지) — throwIfNotOk + `retry:false` silent 폴백.
+- ReportPage — `/machines/`, `/reports/` throwIfNotOk (latestReport는 기존 null 패턴 보존).
+- SettingsPage — `/notifications/settings` throwIfNotOk + `retry:false` silent.
+- 검증: tsc 0 errors, build 5.87s, PWA precache 30 entries.
+- Opus 자기리뷰 10/10 PASS.
+
+### Phase 4 — Per-Endpoint Mock Override
+- `mockApi.ts`: `ENDPOINTS_DISABLED_IN_MOCK: Set<string>` 상수(현재 빈) + `isMockApiEnabledForEndpoint(path)` 함수 신설.
+- `api.ts`: `isMockApiEnabled()` → `isMockApiEnabledForEndpoint(normalizedPath)` 교체.
+- `.env.example`: "Per-Endpoint Mock Override" 섹션 신설 (코드 상수 제어 방식 안내).
+- 정확한 path 매칭 (query string 제외, sub-path 자동 포함 X) — 주석으로 명시.
+- 검증: tsc 0 errors, build 통과.
+- Opus 자기리뷰 10/10 PASS.
+
+### Phase 5 — 문서 동기화 + daily log
+- `docs/ref/cloud-run-api-spec.md`에 "FE Fallback Pattern (2026-06-08~)" 섹션 신설 — 인프라 / 사용 패턴 / Per-Endpoint Override 운영 가이드.
+- `docs/status/PROJECT-STATUS.md` — 2026-06-08 phase-loop 2 완료 5건 + 다음 우선순위 갱신.
+- 본 daily log append (PHASE-LOOP 2 섹션).
+
+### Verification
+- `cd frontend && npx tsc --noEmit` → 0 errors (각 phase)
+- `cd frontend && npm run build` → 성공, PWA precache 30 entries
+- 콘솔/runtime 에러 누적 0건
+- `isMockApiEnabled` 외부 호출처 0건 (grep)
+
+### Daily Sync
+- PROJECT-STATUS Phase-loop 2 완료 5건 + 다음 우선순위 5건 추가.
+- cloud-run-api-spec FE Fallback Pattern 섹션으로 운영 가이드 통합.
+
+### Risks / Follow-up
+- 백엔드 endpoint 활성화 시 `mockApi.ts ENDPOINTS_DISABLED_IN_MOCK`에 path 추가만으로 점진 전환 — 빌드 후 배포 필요.
+- 신 staging `/me` 404 — 자격 또는 API 일시 장애 확인 필요 (Phase 3 범위 밖).
+- 실 staging `/machines` 응답 sparse — label null 폴백 (`label ?? machine_code`) 별도 백로그.
+- `enabled: isOpen` 패턴(NotificationModal)은 모달 열린 후 첫 호출 시점에만 폴백 노출 — 의도된 동작.
+
+### Next Recommendations
+- 백엔드 endpoint 순차 활성화 (`/dashboard/home` → `/notifications/*` → `/reports/*`).
+- 각 활성화 시점에 `ENDPOINTS_DISABLED_IN_MOCK`에 path 추가 후 재배포.
+- `/machines` label null 폴백 (`label ?? machine_code`) 백로그 작업.
+- Vercel preview 자동 검증 CI 도입 (agent-browser 스크립트 GitHub Actions).

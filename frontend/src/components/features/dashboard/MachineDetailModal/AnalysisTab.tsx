@@ -5,10 +5,12 @@ import { useQuery } from '@tanstack/react-query';
 import { type Machine } from '../MachineCard';
 import { cn } from '../../../../lib/utils';
 import { apiFetch } from '@/lib/api';
+import { throwIfNotOk, getEndpointPendingMode } from '@/lib/apiErrorHelper';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { chartTokens, classTokens, statusTokens } from '@/styles/tokens';
 import { useElementSize } from '@/lib/useElementSize';
 import { mockScenario } from '@/lib/mockScenario';
+import { EndpointPending } from '../../../shared/EndpointPending';
 
 interface AnalysisTabProps {
     machine: Machine;
@@ -21,8 +23,10 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
     const { data: analysis, isPending, error } = useQuery({
         queryKey: QUERY_KEYS.machineAnalysis(machine.id),
         queryFn: async () => {
-            const response = await apiFetch(`/dashboard/machine-detail/analysis?machine_id=${machine.id}`);
-            if (!response.ok) throw new Error('분석 데이터를 불러오는데 실패했습니다.');
+            const response = await throwIfNotOk(
+                await apiFetch(`/dashboard/machine-detail/analysis?machine_id=${machine.id}`),
+                '/dashboard/machine-detail/analysis'
+            );
             return response.json();
         },
     });
@@ -38,8 +42,13 @@ export function AnalysisTab({ machine, onViewMaintenance }: AnalysisTabProps) {
 
     if (error) {
         return (
-            <div className="p-8 bg-rose-50 border border-rose-100 text-center" style={{ borderRadius: 'var(--radius-lg)' }}>
-                <p className="text-rose-600 font-medium text-sm">분석 데이터를 불러오지 못했습니다.</p>
+            <div className="py-6">
+                <EndpointPending
+                    title="분석 데이터를 준비 중이에요"
+                    description="AI 분석 결과를 정리하고 있어요. 잠시 후 다시 시도해 주세요."
+                    icon={TrendingDown}
+                    mode={getEndpointPendingMode(error)}
+                />
             </div>
         );
     }

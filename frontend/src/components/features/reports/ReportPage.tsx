@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { throwIfNotOk } from '@/lib/apiErrorHelper';
 import { StatRow } from './StatRow';
 import { AIInsightCard } from './AIInsightCard';
 import { HistoryView } from './HistoryView';
@@ -54,8 +55,7 @@ export function ReportPage() {
     const { data: machinesData } = useQuery<{ machines: Machine[] }>({
         queryKey: QUERY_KEYS.machines,
         queryFn: async () => {
-            const response = await apiFetch('/machines/');
-            if (!response.ok) throw new Error('설비 목록 로드 실패');
+            const response = await throwIfNotOk(await apiFetch('/machines/'), '/machines/');
             return response.json();
         },
     });
@@ -90,7 +90,9 @@ export function ReportPage() {
         queryFn: async () => {
             if (!selectedDeviceId) return { reports: [] };
             const response = await apiFetch(`/reports/?device_id=${selectedDeviceId}`);
-            if (!response.ok) throw new Error('트렌드 데이터 로드 실패');
+            // 신 staging에 /reports/ 미제공 시 빈 trend로 silent 폴백
+            if (response.status === 404) return { reports: [] };
+            await throwIfNotOk(response, '/reports/');
             return response.json();
         },
         enabled: !!selectedDeviceId,

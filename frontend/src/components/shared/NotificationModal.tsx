@@ -3,8 +3,10 @@ import { X, Bell, Zap, AlertCircle, CheckCircle2, Settings2, Loader2 } from 'luc
 import { cn } from '../../lib/utils';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api';
+import { throwIfNotOk, getEndpointPendingMode } from '@/lib/apiErrorHelper';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { classTokens } from '@/styles/tokens';
+import { EndpointPending } from './EndpointPending';
 
 interface Notification {
     id: string;
@@ -50,11 +52,10 @@ const TYPE_CONFIG = {
 export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
     const queryClient = useQueryClient();
 
-    const { data, isLoading } = useQuery<{ notifications: Notification[] }>({
+    const { data, isLoading, error } = useQuery<{ notifications: Notification[] }>({
         queryKey: QUERY_KEYS.notifications,
         queryFn: async () => {
-            const response = await apiFetch('/notifications/');
-            if (!response.ok) throw new Error('알림 로딩 실패');
+            const response = await throwIfNotOk(await apiFetch('/notifications/'), '/notifications/');
             return response.json();
         },
         enabled: isOpen,
@@ -136,6 +137,15 @@ export function NotificationModal({ isOpen, onClose }: NotificationModalProps) {
                                 <div className="flex flex-col items-center justify-center py-20 gap-3 text-slate-400">
                                     <Loader2 className="size-8 animate-spin" />
                                     <p className="font-medium text-sm">알림을 불러오는 중...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="py-4">
+                                    <EndpointPending
+                                        title="알림 기능을 준비 중이에요"
+                                        description="알림 서비스가 곧 제공됩니다."
+                                        icon={Bell}
+                                        mode={getEndpointPendingMode(error)}
+                                    />
                                 </div>
                             ) : notifications.length === 0 ? (
                                 <div className="flex flex-col items-center justify-center py-20 gap-2 text-slate-400">

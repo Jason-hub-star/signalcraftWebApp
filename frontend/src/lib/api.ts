@@ -1,4 +1,4 @@
-import { isMockApiEnabled, mockApiFetch } from './mockApi';
+import { isMockApiEnabledForEndpoint, mockApiFetch } from './mockApi';
 import { getRuntimeConfigValue } from './runtimeConfig';
 
 const normalizePath = (path: string) => (path.startsWith('/') ? path : `/${path}`);
@@ -34,7 +34,7 @@ const mergeHeaders = (base: Record<string, string>, override?: HeadersInit): Hea
 export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
     const normalizedPath = normalizePath(path);
 
-    if (isMockApiEnabled()) {
+    if (isMockApiEnabledForEndpoint(normalizedPath)) {
         return mockApiFetch(normalizedPath, init);
     }
 

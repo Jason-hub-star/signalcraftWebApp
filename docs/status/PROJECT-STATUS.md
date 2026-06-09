@@ -20,10 +20,20 @@ Last Updated: 2026-06-08
 - ✅ Phase 4: `docs/archive/2026-06-08/cloud-run-mock-spec.md` + `backend-railway-residue.md` 신설, root `CLAUDE.md` stale 라인 갱신
 - ✅ Phase 5: PROJECT-STATUS + daily log 동기화
 
+### 2026-06-08 폴백 UI 인프라 + 점진 전환 (Phase 1~5)
+- ✅ Phase 1: `<EndpointPending />` 3-mode + `apiErrorHelper` (`ApiError`, `throwIfNotOk`, `getEndpointPendingMode`)
+- ✅ Phase 2: 로컬 dev 서버 + agent-browser 4 페이지 순회, 회귀 패턴 매핑 (콘솔 에러 0건)
+- ✅ Phase 3: 8개 페이지 폴백 통일 적용 (Dashboard, AnalysisTab/SmartLogTab/MaintenanceTab, NotificationModal/Header, ReportPage/SettingsPage)
+- ✅ Phase 4: per-endpoint mock override (`ENDPOINTS_DISABLED_IN_MOCK: Set<string>`) — 백엔드 완성 순서대로 path 추가만으로 점진 전환
+- ✅ Phase 5: 문서 동기화 + daily log (FE Fallback Pattern 섹션 신설)
+
 ### 다음 우선순위
+- 백엔드: `/dashboard/home` → `/notifications/*` → `/reports/*` 순차 활성화
+- FE: 백엔드 활성화될 때마다 `mockApi.ts` ENDPOINTS_DISABLED_IN_MOCK에 path 추가 + 재배포
 - Cloud Run FE 컨테이너 실배포 검증 (`VITE_PLACE_ID` 포함 6종 env 등록)
 - 외부 API JWT/Bearer 전환 (현 헤더 인증은 PoC, `external-api-audit.md` A1)
 - `/machines` 페이지네이션 도입 (`external-api-audit.md` A2)
+- `/machines` 응답 label null 폴백 (실 staging 데이터 sparse, machine_code로 표시)
 - `QUERY_KEYS.userProfile` → `['me']` 시맨틱 리네임 (유보 중)
 
 ### Opus 자기리뷰 후속 수정 (2026-06-05)

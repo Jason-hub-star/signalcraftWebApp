@@ -145,6 +145,69 @@ Cloud Run에 없으므로 `mockApi`가 계속 응답:
 - `/me` 응답이 도착하면 `places[0].id`로 갱신 (다중 place 지원 시 selector 도입)
 - `/places/{id}/machines` path param에 주입
 
+## FE Fallback Pattern (2026-06-08~)
+
+### 목적
+신 staging API에 아직 없는 endpoint(`/dashboard/*`, `/notifications/*`, `/reports/*` 등)를 호출할 때 흰 화면 대신 "준비 중" 폴백 UI를 표시. 백엔드가 endpoint 하나씩 완성하는 순서대로 점진적으로 실 API로 전환.
+
+### 인프라
+- `frontend/src/components/shared/EndpointPending.tsx`
+  - 단일 컴포넌트, 3-mode (`preparing` | `empty` | `error`)
+  - props: `title`, `description?`, `icon?` (Lucide), `mode?` (기본 `preparing`)
+  - 톤: `preparing`=파랑/Clock, `empty`=회색/Clock, `error`=빨강/AlertCircle
+  - aria-live, role, Framer Motion 부드러운 등장
+- `frontend/src/lib/apiErrorHelper.ts`
+  - `ApiError` class (status + message)
+  - `isApiPendingStatus(status)` — 404 또는 5xx
+  - `getEndpointPendingMode(error)` — error 객체에서 mode 자동 분류
+  - `throwIfNotOk(response, label)` — 응답이 not ok 시 ApiError throw, mockApi 200 응답은 무영향
+
+### 사용 패턴 (페이지/컴포넌트에서)
+```ts
+const { data, isPending, error } = useQuery<T>({
+    queryKey: ...,
+    queryFn: async () => {
+        const response = await throwIfNotOk(await apiFetch(path), path);
+        return response.json();
+    },
+});
+
+if (isPending) return <LoadingSpinner />;
+if (error) return (
+    <EndpointPending
+        title="..."
+        description="..."
+        icon={...}
+        mode={getEndpointPendingMode(error)}
+    />
+);
+```
+
+### Per-Endpoint Mock Override
+- `frontend/src/lib/mockApi.ts` 의 `ENDPOINTS_DISABLED_IN_MOCK: Set<string>` 상수로 제어 (env 토큰 아님).
+- 백엔드 endpoint 활성화 순서대로 set 에 path 추가 → 해당 path만 mock 건너뛰고 실 API fall-through.
+- 정확한 path 매칭 (query string 제외, sub-path 자동 포함 X).
+- `isMockApiEnabledForEndpoint(path)` 함수가 apiFetch 분기 결정.
+
+예) 알림 API 완성 시:
+```ts
+const ENDPOINTS_DISABLED_IN_MOCK = new Set<string>([
+    '/notifications/',
+    '/notifications/settings',
+]);
+```
+이 변경 후 FE 재빌드/재배포만 하면 알림 path만 실 API로 전환됨. 다른 mock-only endpoint는 그대로 mock 응답.
+
+### 폴백 적용 위치 (2026-06-08 기준)
+- DashboardPage (대시보드 홈) — `/dashboard/home`
+- AnalysisTab — `/dashboard/machine-detail/analysis`
+- SmartLogTab — `/dashboard/machine-detail/smart-log`
+- MaintenanceTab — `/dashboard/machine-detail/maintenance`
+- NotificationModal — `/notifications/`
+- Header 알림 뱃지 — `/notifications/` (silent, 뱃지 숨김)
+- SettingsPage — `/notifications/settings` (silent, 토글 off 유지)
+- ReportPage — `/reports/latest/{id}` (기존 null 폴백), `/reports/` (silent 빈 trend)
+
 ## 관련 문서
 - 개선 백로그 8건: `docs/ref/external-api-audit.md`
 - FE 전환 플랜: `/Users/family/.claude/plans/glimmering-seeking-harbor.md`

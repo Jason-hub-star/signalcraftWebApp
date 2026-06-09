@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, History, Plus, CheckCircle2, Settings2, X, Loader2 } from 'lucide-react';
+import { AlertCircle, History, Plus, CheckCircle2, Settings2, Wrench, X, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../../../ui/Button';
 import { cn } from '../../../../../lib/utils';
@@ -8,8 +8,10 @@ import { type MaintenanceView } from '../types';
 import { type Machine } from '../../MachineCard';
 import { MaintenanceRecordModal } from './MaintenanceRecordModal';
 import { apiFetch } from '@/lib/api';
+import { throwIfNotOk, getEndpointPendingMode } from '@/lib/apiErrorHelper';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { classTokens } from '@/styles/tokens';
+import { EndpointPending } from '../../../../shared/EndpointPending';
 
 interface MaintenanceTabProps {
     machine: Machine;
@@ -40,11 +42,13 @@ export function MaintenanceTab({
 }: MaintenanceTabProps) {
     const [isRecordModalOpen, setIsRecordModalOpen] = useState(false);
 
-    const { data: history, isPending } = useQuery<any[]>({
+    const { data: history, isPending, error } = useQuery<any[]>({
         queryKey: QUERY_KEYS.maintenanceHistory(machine.id),
         queryFn: async () => {
-            const response = await apiFetch(`/dashboard/machine-detail/maintenance?machine_id=${machine.id}`);
-            if (!response.ok) throw new Error('유지보수 이력을 불러오는데 실패했습니다.');
+            const response = await throwIfNotOk(
+                await apiFetch(`/dashboard/machine-detail/maintenance?machine_id=${machine.id}`),
+                '/dashboard/machine-detail/maintenance'
+            );
             return response.json();
         },
     });
@@ -125,6 +129,15 @@ export function MaintenanceTab({
                                 <div className="flex flex-col items-center justify-center py-12 gap-3">
                                     <Loader2 className="size-6 text-signal-blue animate-spin" />
                                     <p className="text-slate-400 font-medium text-xs">이력을 불러오고 있습니다...</p>
+                                </div>
+                            ) : error ? (
+                                <div className="py-4">
+                                    <EndpointPending
+                                        title="유지보수 이력을 준비 중이에요"
+                                        description="정비 기록을 정리하고 있어요."
+                                        icon={Wrench}
+                                        mode={getEndpointPendingMode(error)}
+                                    />
                                 </div>
                             ) : (
                                 <div className="relative space-y-8 before:absolute before:inset-0 before:ml-5 before:-translate-x-px before:h-full before:w-0.5 before:bg-slate-100">

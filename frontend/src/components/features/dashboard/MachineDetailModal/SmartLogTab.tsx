@@ -1,13 +1,15 @@
 import { motion } from 'framer-motion';
-import { Plus, TrendingDown, Loader2 } from 'lucide-react';
+import { FileText, Plus, TrendingDown, Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '../../../ui/Button';
 import { cn } from '../../../../lib/utils';
 import { type Machine } from '../MachineCard';
 import { apiFetch } from '@/lib/api';
+import { throwIfNotOk, getEndpointPendingMode } from '@/lib/apiErrorHelper';
 import { QUERY_KEYS } from '@/lib/queryKeys';
 import { classTokens } from '@/styles/tokens';
 import { mockScenario } from '@/lib/mockScenario';
+import { EndpointPending } from '../../../shared/EndpointPending';
 
 interface SmartLogTabProps {
     machine: Machine;
@@ -17,8 +19,10 @@ export function SmartLogTab({ machine }: SmartLogTabProps) {
     const { data: logs, isPending, error } = useQuery<any[]>({
         queryKey: QUERY_KEYS.machineSmartLogs(machine.id),
         queryFn: async () => {
-            const response = await apiFetch(`/dashboard/machine-detail/smart-log?machine_id=${machine.id}`);
-            if (!response.ok) throw new Error('상세 로그를 불러오는데 실패했습니다.');
+            const response = await throwIfNotOk(
+                await apiFetch(`/dashboard/machine-detail/smart-log?machine_id=${machine.id}`),
+                '/dashboard/machine-detail/smart-log'
+            );
             return response.json();
         },
     });
@@ -70,8 +74,13 @@ export function SmartLogTab({ machine }: SmartLogTabProps) {
                             <p className="text-slate-400 font-medium text-xs">기록을 불러오고 있습니다...</p>
                         </div>
                     ) : error ? (
-                        <div className="py-20 text-center">
-                            <p className="text-rose-500 font-medium text-xs">데이터 로드 실패</p>
+                        <div className="p-6">
+                            <EndpointPending
+                                title="스마트 로그를 준비 중이에요"
+                                description="설비 상세 기록을 정리하고 있어요."
+                                icon={FileText}
+                                mode={getEndpointPendingMode(error)}
+                            />
                         </div>
                     ) : (
                         <table className="w-full text-left border-collapse">
